@@ -3,7 +3,7 @@ import {
   Users, ChevronRight, ArrowLeft, Globe, BarChart2, Phone,
   TrendingUp, Award, ChevronDown, ChevronUp, ExternalLink, PenLine,
 } from 'lucide-react';
-import { ManagerConfig, getDirectReports } from '../config/managerConfig';
+import { ManagerConfig, getDirectReports, ALL_AES_SENTINEL } from '../config/managerConfig';
 import { DemoSession } from '../types';
 import { DemoScoringApp } from './DemoScoringApp';
 import { AeSessionScorecard } from '../components/AeSessionScorecard';
@@ -121,12 +121,12 @@ const TeamDashboard: React.FC<{
 }> = ({ managerConfig, allSessions, onViewSession, onScoreCall }) => {
   const [expandedAe, setExpandedAe] = useState<string | null>(null);
   const directReports = getDirectReports(managerConfig);
+  const hasGlobalAccess = managerConfig.directReports.includes(ALL_AES_SENTINEL);
 
   const aeRows: AeRow[] = useMemo(() => {
-    // Filter sessions to this manager's direct reports
-    const filtered = allSessions.filter((s) =>
-      s.callDeliveredBy && directReports.includes(s.callDeliveredBy)
-    );
+    const filtered = hasGlobalAccess
+      ? allSessions.filter((s) => !!s.callDeliveredBy)
+      : allSessions.filter((s) => s.callDeliveredBy && directReports.includes(s.callDeliveredBy));
 
     const map: Record<string, DemoSession[]> = {};
     filtered.forEach((s) => {
@@ -135,7 +135,11 @@ const TeamDashboard: React.FC<{
       map[key].push(s);
     });
 
-    return directReports
+    const visibleNames = hasGlobalAccess
+      ? Object.keys(map).sort()
+      : directReports;
+
+    return visibleNames
       .map((name) => {
         const sessions = (map[name] ?? []).sort(
           (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
@@ -151,7 +155,7 @@ const TeamDashboard: React.FC<{
       })
       .filter((r) => r.calls > 0)
       .sort((a, b) => b.avgScore - a.avgScore);
-  }, [allSessions, directReports]);
+  }, [allSessions, directReports, hasGlobalAccess]);
 
   const totalCalls = aeRows.reduce((s, r) => s + r.calls, 0);
   const activeAes = aeRows.length;
@@ -203,7 +207,7 @@ const TeamDashboard: React.FC<{
         <StatCard
           label="Active SEs"
           value={activeAes}
-          sub={`of ${directReports.length} on roster`}
+          sub={hasGlobalAccess ? 'across all scored SEs' : `of ${directReports.length} on roster`}
           icon={<Users size={18} className="text-purple-600" />}
           color="bg-purple-50"
         />
