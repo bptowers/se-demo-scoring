@@ -11,7 +11,7 @@ import { getScoreInterpretation, getInterpretationLabel, getInterpretationColor 
 import { DemoSession } from '../types';
 import { AeSessionScorecard } from '../components/AeSessionScorecard';
 import { SeCallScorecard } from '../components/SeCallScorecard';
-import { SAMPLE_AE_SESSION } from '../utils/sampleAeSession';
+import { SAMPLE_SE_SESSION } from '../utils/sampleSeSession';
 import { getManagerConfig, getDirectReports, ALL_AES_SENTINEL } from '../config/managerConfig';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -28,6 +28,18 @@ const getSessionScorePct = (s: DemoSession): number =>
 
 const formatDate = (d: Date) =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+
+const withTimeout = async <T,>(promise: Promise<T>, timeoutMs = 8000): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error('Dashboard data request timed out')), timeoutMs);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    clearTimeout(timeoutId!);
+  }
+};
 
 const formatDateShort = (d: Date) =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(d);
@@ -230,10 +242,10 @@ export const AeDashboard: React.FC = () => {
       try {
         let all: DemoSession[];
         if (isManager) {
-          const [fromCollection, fromOwn] = await Promise.all([
+          const [fromCollection, fromOwn] = await withTimeout(Promise.all([
             getAeSessionsForManager(),
             getUserEvaluations(user.uid),
-          ]);
+          ]));
           const merged = [...fromCollection];
           const seen = new Set(merged.map(s => s.id));
           for (const s of fromOwn) {
@@ -245,12 +257,13 @@ export const AeDashboard: React.FC = () => {
             ? merged
             : merged.filter(s => reportsLower.includes((s.callDeliveredBy || '').toLowerCase()));
         } else {
-          all = await getUserEvaluations(user.uid);
+          all = await withTimeout(getUserEvaluations(user.uid));
         }
         setSessions(all.filter(s => s.rubricType !== 'BDR' && s.status === 'complete' && (!!s.aiScoring || !!s.aiV2 || !!s.seScoring)));
       } catch (e) {
         console.error(e);
-        setError('Failed to load sessions. Please try again.');
+        setSessions([]);
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -323,7 +336,7 @@ export const AeDashboard: React.FC = () => {
             <History size={13} /> Call History
           </Link>
           <button
-            onClick={() => setSelectedSession(SAMPLE_AE_SESSION)}
+            onClick={() => setSelectedSession(SAMPLE_SE_SESSION)}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border border-brand-navy text-brand-navy text-sm font-semibold hover:bg-brand-navy hover:text-white transition-colors"
           >
             View Sample Report <ExternalLink size={13} />

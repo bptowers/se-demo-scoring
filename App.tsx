@@ -5,12 +5,10 @@ import { DemoScoringApp } from './pages/DemoScoringApp';
 import { TrendReport } from './pages/TrendReport';
 import { Login } from './pages/Login';
 import { ManagerDashboard } from './pages/ManagerDashboard';
-import { BdrDashboard } from './pages/BdrDashboard';
 import { AeDashboard } from './pages/AeDashboard';
 import { CallHistory } from './pages/CallHistory';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { getManagerConfig } from './config/managerConfig';
-import { isBdrUser, isBdrDashboardManager } from './config/bdrUsers';
 
 const ManagerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -30,20 +28,6 @@ const ManagerDashboardWrapper: React.FC = () => {
   const { user } = useAuth();
   const config = getManagerConfig(user?.email);
   return config ? <ManagerDashboard managerConfig={config} /> : null;
-};
-
-const BdrRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading } = useAuth();
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-brand-navy flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-yellow"></div>
-      </div>
-    );
-  }
-  if (!user) return <Navigate to="/login" replace />;
-  if (!isBdrUser(user.email) && !isBdrDashboardManager(user.email)) return <Navigate to="/" replace />;
-  return <>{children}</>;
 };
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -98,18 +82,10 @@ const AppRoutes: React.FC = () => {
           </ManagerRoute>
         }
       />
+      <Route path="/bdr" element={<Navigate to="/" replace />} />
+      <Route path="/ae-dashboard" element={<Navigate to="/se-dashboard" replace />} />
       <Route
-        path="/bdr"
-        element={
-          <BdrRoute>
-            <Layout>
-              <BdrDashboard />
-            </Layout>
-          </BdrRoute>
-        }
-      />
-      <Route
-        path="/ae-dashboard"
+        path="/se-dashboard"
         element={
           <ProtectedRoute>
             <Layout>

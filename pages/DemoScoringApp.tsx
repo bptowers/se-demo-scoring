@@ -13,7 +13,6 @@ import { analyzeTranscript, analyzeTranscriptV2, analyzeTranscriptSE, getAvailab
 import { processTextFile, processPdfFile, processDocxFile, validateFileSize, getFileType, formatFileSize } from '../services/fileProcessingService';
 import { saveEvaluation, getUserAverageScore, getLastDemoScore, getUserRecentScores } from '../services/firestoreService';
 import { useAuth } from '../context/AuthContext';
-import { isBdrUser, isBdrDashboardManager } from '../config/bdrUsers';
 import { getManagerConfig, getDirectReports } from '../config/managerConfig';
 import { Upload, FileText, CheckCircle, User, UserCog, Bot, ArrowRight, AlertCircle, Mic2, Award, TrendingUp, AlertTriangle, Download, PlayCircle, Phone, RefreshCw } from 'lucide-react';
 import { fetchClariCalls, fetchClariTranscript, ClariCall } from '../services/clariService';
@@ -112,9 +111,7 @@ interface DemoScoringAppProps {
 
 export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDeliveredBy }) => {
   const { user } = useAuth();
-  const [rubricType, setRubricType] = useState<ScoringRubricType>('AE');
-  const showBdrMode = isBdrUser(user?.email);
-  const isBdrManager = isBdrDashboardManager(user?.email);
+  const [rubricType] = useState<ScoringRubricType>('AE');
   const aeManagerConfig = getManagerConfig(user?.email);
   const canSelectGeminiModel = user?.email?.toLowerCase() === BRAD_TESTER_EMAIL;
   const aeDirectReports = aeManagerConfig ? getDirectReports(aeManagerConfig).sort() : [];
@@ -490,8 +487,8 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
                 </div>
                 <div className="w-px bg-white/20"></div>
                 <div className="text-center">
-                   <div className="text-2xl font-bold text-brand-yellow">3</div>
-                   <div className="text-xs text-slate-400 uppercase font-semibold">Scoring Modes</div>
+                   <div className="text-2xl font-bold text-brand-yellow">10</div>
+                   <div className="text-xs text-slate-400 uppercase font-semibold">SE Categories</div>
                 </div>
              </div>
           </div>
@@ -505,9 +502,7 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
           <div className="bg-slate-50 border-b border-slate-200 px-6 py-4 flex items-center gap-4 overflow-x-auto">
             {[
               { id: 'input', label: '1. Setup', icon: Upload },
-              { id: 'se', label: '2. Self Assessment', icon: User, disabled: session.status === 'upload' || session.mode === ScoringMode.AI_ONLY },
-              { id: 'manager', label: '3. Manager Review', icon: UserCog, disabled: session.status === 'upload' || session.mode === ScoringMode.AI_ONLY },
-              { id: 'results', label: '4. Analysis Report', icon: Award, disabled: session.status !== 'complete' && session.status !== 'scoring' }
+              { id: 'results', label: '2. SE Scorecard', icon: Award, disabled: session.status !== 'complete' && session.status !== 'scoring' }
             ].map((step) => (
               <button 
                 key={step.id}
@@ -793,15 +788,15 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
                         </label>
                         <input
                           type="text"
-                          value={lockedCallDeliveredBy || (rubricType === 'BDR' && !isBdrManager ? user?.displayName : session.callDeliveredBy) || ''}
-                          onChange={(e) => !lockedCallDeliveredBy && !(rubricType === 'BDR' && !isBdrManager) && setSession(prev => ({
+                          value={lockedCallDeliveredBy || session.callDeliveredBy || ''}
+                          onChange={(e) => !lockedCallDeliveredBy && setSession(prev => ({
                             ...prev,
                             callDeliveredBy: e.target.value
                           }))}
-                          readOnly={!!lockedCallDeliveredBy || (rubricType === 'BDR' && !isBdrManager)}
-                          placeholder="Enter rep name..."
+                          readOnly={!!lockedCallDeliveredBy}
+                          placeholder="Enter SE name..."
                           className={`w-full p-2 border border-gray-300 rounded outline-none ${
-                            !!lockedCallDeliveredBy || (rubricType === 'BDR' && !isBdrManager)
+                            !!lockedCallDeliveredBy
                               ? 'bg-gray-50 text-gray-600 cursor-not-allowed'
                               : 'focus:border-brand-yellow'
                           }`}
@@ -810,17 +805,9 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
                           <p className="text-xs text-brand-navy font-semibold mt-1">
                             Locked — scoring on behalf of manager selection
                           </p>
-                        ) : rubricType === 'BDR' && !isBdrManager ? (
-                          <p className="text-xs text-brand-navy font-semibold mt-1">
-                            BDR calls are scored as yourself
-                          </p>
-                        ) : rubricType === 'BDR' && isBdrManager ? (
-                          <p className="text-xs text-gray-500 mt-1">
-                            Enter the name of the BDR rep you are scoring.
-                          </p>
                         ) : (
                           <p className="text-xs text-gray-500 mt-1">
-                            Scoring your own demo? Leave as is. Scoring a colleague? Enter their name.
+                            Enter the target Sales Engineer if the transcript does not make it obvious.
                           </p>
                         )}
                       </div>
@@ -889,39 +876,9 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
                           </div>
                         )}
 
-                        {showBdrMode && (
-                          <div className="mb-6">
-                            <h4 className="text-sm font-bold text-brand-navy mb-2 flex items-center gap-2">
-                              <Mic2 size={16} />
-                              Call Type
-                            </h4>
-                            <div className="flex rounded-lg border border-slate-200 overflow-hidden">
-                              {(['AE', 'BDR'] as ScoringRubricType[]).map((type) => (
-                                <button
-                                  key={type}
-                                  onClick={() => setRubricType(type)}
-                                  className={`flex-1 py-2.5 text-sm font-bold transition-all ${
-                                    rubricType === type
-                                      ? 'bg-brand-navy text-white'
-                                      : 'bg-white text-slate-600 hover:bg-slate-50'
-                                  }`}
-                                >
-                                  {type === 'AE' ? 'SE Demo Call' : 'BDR Prospecting Call'}
-                                </button>
-                              ))}
-                            </div>
-                            {rubricType === 'BDR' && (
-                              <p className="text-xs text-slate-500 mt-1.5">Scored against the 46-pt BDR prospecting framework (B1–B23)</p>
-                            )}
-                          </div>
-                        )}
-
-
                         <div className="space-y-3">
                           {[
-                            { mode: ScoringMode.AI_ONLY, title: "AI Quick Scan", desc: "Immediate automated feedback.", icon: Bot, disabled: false },
-                            { mode: ScoringMode.MANUAL_PEER, title: "Manual Evaluation", desc: "Coming Soon", icon: UserCog, disabled: true },
-                            { mode: ScoringMode.HYBRID, title: "360° Coaching Suite", desc: "Coming Soon", icon: CheckCircle, disabled: true }
+                            { mode: ScoringMode.AI_ONLY, title: "AI SE Scorecard", desc: "Evidence-based scoring against the SE demo rubric.", icon: Bot, disabled: false }
                           ].map((option) => (
                             <div
                               key={option.mode}
