@@ -1,0 +1,32 @@
+{
+  "name": "simpro-se-demo-scoring",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.71.0",
+    "@google/genai": "^1.30.0",
+    "date-fns": "^4.1.0",
+    "firebase": "^12.6.0",
+    "lucide-react": "^0.554.0",
+    "mammoth": "^1.11.0",
+    "openai": "^6.9.1",
+    "pdfjs-dist": "^5.4.449",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.9.6",
+    "recharts": "^3.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@types/pdfjs-dist": "^2.10.377",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}

@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Each user's own evaluations
+    match /users/{userId}/evaluations/{evaluationId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Each user's own improvement goals
+    match /users/{userId}/goals/{goalId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Top-level AE sessions (dual-written on completion for manager queries)
+    match /aeSessions/{sessionId} {
+      // AE managers can read all sessions
+      allow read: if request.auth != null && request.auth.token.email in [
+        'alex.shepherd@bigchange.com',
+        'simon.tusinghamjones@simprogroup.com',
+        'stewart.mclellan@simpro.co.uk',
+        'katy.sollis@simpro.co.uk',
+        'mike.langley@simpro.com',
+        'daniel.metcalf@clockshark.com',
+        'justin.barlow@simpro.com.au',
+        'milan.kumar@simpro.com',
+        'pete.mansel@simpro.com',
+        'thilo.schatz@simpro.us',
+        'michael.weinberg@simpro.com',
+        'jason.smith@simprogroup.com',
+        'brad.towers@simprogroup.com'
+      ];
+      // Any authenticated user can write (dual-write on session completion)
+      allow write: if request.auth != null;
+    }
+
+    // Top-level BDR sessions (dual-written for manager queries)
+    match /bdrSessions/{sessionId} {
+      // BDR Dashboard managers can read all sessions
+      allow read: if request.auth != null && request.auth.token.email in [
+        'dave.murphy@bigchange.com',
+        'brad.towers@simprogroup.com',
+        'pete.mansel@simprogroup.com',
+        'david.doloboff@simpro.us'
+      ];
+      // BDR reps can read their own sessions
+      allow read: if request.auth != null &&
+        resource.data.bdrRepEmail == request.auth.token.email;
+      // Any authenticated user can write (BDR reps saving their own sessions)
+      allow write: if request.auth != null;
+    }
+  }
+}
