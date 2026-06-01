@@ -18,7 +18,7 @@
   },
   "functions": {
     "source": "functions",
-    "codebase": "ae-scoring",
+    "codebase": "se-demo-scoring",
     "ignore": [
       "node_modules",
       ".git",
@@ -28,4 +28,3 @@
     ]
   }
 }
-
