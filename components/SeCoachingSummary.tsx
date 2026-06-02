@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { DemoSession } from '../types';
 import { Button } from './Button';
+import { SeCategoryRadar } from './SeCategoryRadar';
 
 interface SeCoachingSummaryProps {
   session: DemoSession;
@@ -55,6 +56,8 @@ export const SeCoachingSummary: React.FC<SeCoachingSummaryProps> = ({
           <p className="text-sm text-slate-700 leading-relaxed">{evaluation.final_manager_summary}</p>
         </div>
       )}
+
+      <SeCategoryRadar categories={evaluation.category_scores} />
 
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
         <h2 className="text-sm font-bold text-amber-800 uppercase tracking-wide mb-3">Top Coaching Priority</h2>

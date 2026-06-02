@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import { DemoSession } from '../types';
 import { Button } from './Button';
+import { SeCategoryRadar } from './SeCategoryRadar';
 
 const scoreColor = (pct: number) => {
   if (pct >= 80) return 'text-green-700 bg-green-50 border-green-200';
@@ -184,6 +185,8 @@ export const SeCallScorecard: React.FC<SeCallScorecardProps> = ({
           </div>
         </div>
       )}
+
+      <SeCategoryRadar categories={evaluation.category_scores} title="Category Score Radar" />
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="px-5 py-3 bg-brand-navy">

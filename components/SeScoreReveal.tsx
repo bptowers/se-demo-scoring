@@ -1,6 +1,7 @@
 import React from 'react';
 import { DemoSession } from '../types';
 import { Button } from './Button';
+import { SeCategoryRadar } from './SeCategoryRadar';
 
 const formatDate = (d: Date) =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
@@ -23,7 +24,7 @@ export const SeScoreReveal: React.FC<SeScoreRevealProps> = ({
   const scorePct = Math.round((result.final_score / 100) * 100);
 
   return (
-    <div className="max-w-2xl mx-auto py-10 px-4 space-y-8 text-center">
+    <div className="max-w-4xl mx-auto py-10 px-4 space-y-8 text-center">
       <div>
         <p className="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">SE Demo Scorecard</p>
         <h1 className="text-3xl font-black text-brand-navy">
@@ -70,6 +71,10 @@ export const SeScoreReveal: React.FC<SeScoreRevealProps> = ({
           {result.one_sentence_assessment}
         </p>
       )}
+
+      <div className="text-left">
+        <SeCategoryRadar categories={evaluation.category_scores} />
+      </div>
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center">
         <Button variant="primary" onClick={onViewCoachingReport} className="flex-1 sm:flex-none sm:px-8">
