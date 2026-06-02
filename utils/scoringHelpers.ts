@@ -2,7 +2,7 @@ import { ScorerProfile, Score, SCORING_RUBRIC, BDR_SCORING_RUBRIC, ScoringCriter
 
 /**
  * Score interpretation thresholds
- * Based on Simpro's Sales Call Scoring Framework
+ * Based on Simpro Group's Sales Call Scoring Framework
  */
 export const SCORE_THRESHOLDS = {
   GOLD_STANDARD: 70,
@@ -203,7 +203,7 @@ export function getTrendEmoji(trend: TrendDirection): string {
  */
 function getWhyItMatters(criterionId: string): string {
   const impacts: Record<string, string> = {
-    gs_discovery:          'Quantifying pain in dollars creates urgency and separates Simpro from "nice to have" to "must have."',
+    gs_discovery:          'Quantifying pain in dollars creates urgency and separates Simpro Group from "nice to have" to "must have."',
     gs_objection_handling: 'Inoculating objections early prevents them from derailing later-stage conversations and builds trust.',
     gs_positioning:        'Revenue-led positioning makes the ROI case for you — the prospect connects the dots between features and profit.',
     gs_closing:            'A 1-10 trial close surfaces hidden objections and a calendar invite on the call prevents deal drift.',
@@ -258,13 +258,13 @@ function getGenericCoachingFix(criterionId: string): string {
     ps_discovery_gates:    'Use a physical or mental checklist: (1) Industry/size (2) Current software (3) Key pain (4) Stakeholders/DM (5) Vision of success (6) Tech adoption readiness. Don\'t demo until all 6 are cleared.',
     ps_value_mirror:       'Before the demo say: "Here\'s what I heard — you\'re struggling with [A], [B], [C]. If I can show you how to solve those today, is that the win?" Get explicit confirmation.',
     ps_demo_execution:     'Replace canned data with their company name, job types, and truck count. Ask "How many more jobs could your team handle if this was automated?" to create velocity.',
-    ps_close_next_steps:   'Ask: "Based on what you\'ve seen, do you think Simpro is an 80% fit for your business?" Then: "What would need to happen on your end to get this in front of [DM]?"',
+    ps_close_next_steps:   'Ask: "Based on what you\'ve seen, do you think Simpro Group is an 80% fit for your business?" Then: "What would need to happen on your end to get this in front of [DM]?"',
     // BDR behaviours
-    bdr_b1:  'Practise your opening until giving your full name feels natural. "Hi, this is [First] [Last] from Simpro" — never just a first name on a cold call.',
+    bdr_b1:  'Practise your opening until giving your full name feels natural. "Hi, this is [First] [Last] from Simpro Group" — never just a first name on a cold call.',
     bdr_b2:  'Record your calls and flag every instance of "just". Replace "I\'m just calling to..." with "The reason for my call today is...".',
     bdr_b3:  'Skip the permission question entirely. Move directly to your reason for the call — the opener itself signals respect for their time.',
     bdr_b4:  'Before dialling, identify the data source: cold, rewarm, inbound, or event. Write your opening line to reference it specifically.',
-    bdr_b5:  'Prepare a single 10-second answer to "what does Simpro do?" Practise it until it\'s automatic. No rambling — tighten it to one sentence.',
+    bdr_b5:  'Prepare a single 10-second answer to "what does Simpro Group do?" Practise it until it\'s automatic. No rambling — tighten it to one sentence.',
     bdr_b6:  'Lead with your insight before asking discovery questions. "The reason I\'m calling is that most [sector] businesses we speak to are losing hours to [problem]." Then pause.',
     bdr_b7:  'Match your insight angle to the prospect\'s profile: trade businesses → admin burden; growth-stage → efficiency; tight-margin → cash flow.',
     bdr_b8:  'After delivering your hook, go silent. Count to three in your head if needed. Let the prospect react — don\'t fill the space yourself.',

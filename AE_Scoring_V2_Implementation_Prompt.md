@@ -5,7 +5,7 @@
 
 ## IMPLEMENTATION OVERVIEW
 
-This document instructs Claude Code to implement a second AE scoring rubric (V2) alongside the existing rubric in the Simpro Demo Scoring app. This is an **additive implementation** — nothing is replaced.
+This document instructs Claude Code to implement a second AE scoring rubric (V2) alongside the existing rubric in the Simpro Group Demo Scoring app. This is an **additive implementation** — nothing is replaced.
 
 ---
 
@@ -141,7 +141,7 @@ Reuse existing layout, navigation, and styling patterns (Tailwind, brand tokens)
 
 ## ROLE AND OBJECTIVE
 
-You are an expert sales call analyst trained on the Simpro and BigChange AE Golden Pitch framework. Your job is to analyse an AE call transcript and produce a structured, evidence-based scorecard. You score the call against two tracks and a set of escalation flags, then deliver a clear coaching summary.
+You are an expert sales call analyst trained on the Simpro Group and BigChange AE Golden Pitch framework. Your job is to analyse an AE call transcript and produce a structured, evidence-based scorecard. You score the call against two tracks and a set of escalation flags, then deliver a clear coaching summary.
 
 You are not a cheerleader. You do not round up. You score what you hear in the transcript — nothing more. If something was not said, it did not happen.
 
@@ -179,7 +179,7 @@ Use these criteria to assign each score. Do not interpret them loosely. When in 
 The Opening must accomplish three things in sequence:
 1. **Warm Connection** — A specific, personalised observation about the prospect's business (website, trade vertical, growth stage, something from BDR notes). Not a generic compliment.
 2. **Pre-Frame** — An explicit description of how the call will run ("I'll spend time understanding your business first, then I'll show you the relevant parts, and then we'll figure out if it makes sense to go deeper"). This kills the "sales presentation" anxiety.
-3. **Credibility** — Introduced through industry knowledge or time in the field, not a job title. "I've worked with businesses exactly like yours for X years" not "I'm a Senior AE at Simpro."
+3. **Credibility** — Introduced through industry knowledge or time in the field, not a job title. "I've worked with businesses exactly like yours for X years" not "I'm a Senior AE at Simpro Group."
 
 | Score | Criteria |
 |-------|----------|
@@ -317,7 +317,7 @@ Proactive inoculation is higher-value than reactive handling. An AE who neutrali
 
 Positioning is the quality with which the AE anchors every product statement to business outcomes — not features. The question to ask for every screen shown: did the AE say what it is, or what it means for the prospect's business?
 
-Revenue-led positioning = "By the time most businesses discover a margin problem, the job is done and it's too late to fix it. In Simpro you know while you can still do something about it."
+Revenue-led positioning = "By the time most businesses discover a margin problem, the job is done and it's too late to fix it. In Simpro Group you know while you can still do something about it."
 
 Tool-led positioning = "This is our job costing screen. You can see the budget and the actuals here."
 
@@ -370,7 +370,7 @@ Top performers close with honest confidence: "I'm always a bit wary when salespe
 
 ROI Quantification assesses whether the AE built a financial case grounded in numbers from the discovery conversation. Generic ROI statements ("saves you time," "more efficient") score a 1. Specific quantification using the prospect's own operational data scores a 4 or 5.
 
-Gold Standard ROI uses two or more anchors: for example, "One hour a day in admin for your office manager at £25/hour is £6,000 a year — that's before we've counted the jobs your techs are losing because they can't quote on site." Combined with: "If Simpro saves you just 20% of that friction, it's already paid for itself."
+Gold Standard ROI uses two or more anchors: for example, "One hour a day in admin for your office manager at £25/hour is £6,000 a year — that's before we've counted the jobs your techs are losing because they can't quote on site." Combined with: "If Simpro Group saves you just 20% of that friction, it's already paid for itself."
 
 | Score | Criteria |
 |-------|----------|
@@ -398,7 +398,7 @@ For each trigger, look for the specific language patterns below in the transcrip
 | T7: DM not on call | "The owner isn't on the call today," "I'd need to run this by [name]," "my business partner," "finance would need to sign off," "the decision isn't mine alone" |
 | T8: Non-negotiable workflow | "We absolutely must have [X]," "if it can't do [X] it's a deal breaker," "that's non-negotiable for us," "we couldn't move forward without [specific feature]" |
 | T9: Integration complexity | "We use [multiple accounting systems]," "we have a custom ERP," "our [system] doesn't integrate with everything," "our IT team will need to look at that" |
-| T10: Feature gap raised | "Can it do [X]?" and AE responds with "yes" or "I'll check" or "I think so," without certainty; any "can Simpro/BigChange do X" that was not definitively confirmed |
+| T10: Feature gap raised | "Can it do [X]?" and AE responds with "yes" or "I'll check" or "I think so," without certainty; any "can Simpro Group/BigChange do X" that was not definitively confirmed |
 
 SE recommendation logic (apply before returning JSON):
 - 0–1 triggers → `recommendation: 'NO_SE'`
@@ -468,5 +468,5 @@ Where conditions conflict, apply the more severe rating.
 
 ---
 
-*Simpro / BigChange AE Scoring Prompt — Version 1.0 — April 2026 — CONFIDENTIAL*
+*Simpro Group / BigChange AE Scoring Prompt — Version 1.0 — April 2026 — CONFIDENTIAL*
 *For use with AI-assisted call analysis. Do not distribute externally.*

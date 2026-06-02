@@ -21,13 +21,13 @@ export const Login: React.FC = () => {
       if (result.user) {
         // Check domain restrictions if needed (e.g., only @simpro)
         const email = result.user.email || '';
-        const isSimpro = email.endsWith('@simpro.co') || email.endsWith('@simprogroup.com');
+        const isSimproGroup = email.endsWith('@simpro.co') || email.endsWith('@simprogroup.com');
         
         // NOTE: For this demo, we allow the "Demo User" even if domain doesn't match, 
         // but in production you would uncomment the check below:
         /*
-        if (!isSimpro && !isDemo) {
-          throw new Error("Access Restricted: Please use your Simpro corporate account.");
+        if (!isSimproGroup && !isDemo) {
+          throw new Error("Access Restricted: Please use your Simpro Group corporate account.");
         }
         */
 
@@ -62,7 +62,7 @@ export const Login: React.FC = () => {
               <div className="w-10 h-10 bg-brand-yellow rounded-lg flex items-center justify-center text-brand-navy shadow-lg shadow-brand-yellow/20">
                 <Mic2 size={24} />
               </div>
-              <span className="text-2xl font-black tracking-tight">SIMPRO <span className="font-light opacity-80">SE Demo Scoring</span></span>
+              <span className="text-2xl font-black tracking-tight">SIMPRO GROUP <span className="font-light opacity-80">SE Demo Scoring</span></span>
            </div>
 
            <h1 className="text-4xl lg:text-6xl font-black tracking-tight leading-tight mb-6">

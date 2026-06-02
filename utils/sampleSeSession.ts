@@ -19,7 +19,7 @@ export const SAMPLE_SE_SESSION: DemoSession = {
       opportunity_stage: 'Solution validation',
       target_se_names: ['Priya Shah'],
       identified_speakers: ['Priya Shah', 'Account Executive', 'Craig Robinson'],
-      customer_objective: 'Understand whether Simpro could support dispatch, technician adoption, and operational visibility.',
+      customer_objective: 'Understand whether Simpro Group could support dispatch, technician adoption, and operational visibility.',
       se_objective: 'Show the customer how the workflow would operate in their day-to-day service environment.',
       transcript_quality: 'High',
       confidence_level: 'High',

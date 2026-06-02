@@ -29,7 +29,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <div className="w-8 h-8 bg-brand-yellow rounded-lg flex items-center justify-center text-brand-navy shadow-lg shadow-brand-yellow/20">
                 <Mic2 size={20} />
               </div>
-              SIMPRO <span className="font-light opacity-80">SE Demo Scoring</span>
+              SIMPRO GROUP <span className="font-light opacity-80">SE Demo Scoring</span>
             </Link>
           </div>
           
@@ -100,7 +100,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <span>Help</span>
               <span>Feedback</span>
               <span>Privacy</span>
-              <span>© 2026 Simpro – SE Demo Scoring</span>
+              <span>© 2026 Simpro Group - SE Demo Scoring</span>
             </div>
           </div>
         </div>

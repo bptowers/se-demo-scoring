@@ -99,7 +99,7 @@ export const BDR_SCORING_RUBRIC: ScoringCriterion[] = [
   { id: 'bdr_b10', name: 'Operational Frustration',    section: 'Discovery',       maxPoints: 2, description: 'Uses open questions to uncover at least one genuine operational frustration' },
   { id: 'bdr_b11', name: 'Pain Compounded',            section: 'Discovery',       maxPoints: 2, description: 'Compounds the pain across at least two dimensions (business / personal / team)' },
   { id: 'bdr_b12', name: 'Cost of Inaction',           section: 'Discovery',       maxPoints: 2, description: "Asks \"what happens if this doesn't change?\" or equivalent" },
-  { id: 'bdr_b13', name: 'No Premature Pitch',         section: 'Discovery',       maxPoints: 2, description: 'Avoids pitching Simpro features when the prospect shows interest' },
+  { id: 'bdr_b13', name: 'No Premature Pitch',         section: 'Discovery',       maxPoints: 2, description: 'Avoids pitching Simpro Group features when the prospect shows interest' },
   // Stage 4: The Mirror (8 pts)
   { id: 'bdr_b14', name: 'Prospect Words Reflected',   section: 'Mirror',          maxPoints: 2, description: "Summarises the prospect's own words back before asking for the demo" },
   { id: 'bdr_b15', name: 'Time-Based Reflection',      section: 'Mirror',          maxPoints: 2, description: 'Uses time-based reflection: "If we gave you those hours back, what would you do?"' },

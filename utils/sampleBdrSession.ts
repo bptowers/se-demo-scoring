@@ -45,7 +45,7 @@ export const SAMPLE_BDR_SESSION: DemoSession = {
         criterionId: 'bdr_b1',
         score: 1,
         reasoning: 'Introduced herself as "Florida" only; Gold Standard requires full name to signal confidence and level up credibility.',
-        coaching: 'Always open with your full name: "Hi, it\'s Florida Ferizolli calling from Simpro." One extra word, significantly more authority.',
+        coaching: 'Always open with your full name: "Hi, it\'s Florida Ferizolli calling from Simpro Group." One extra word, significantly more authority.',
       },
       {
         criterionId: 'bdr_b2',
@@ -158,7 +158,7 @@ export const SAMPLE_BDR_SESSION: DemoSession = {
       {
         criterionId: 'bdr_b20',
         score: 2,
-        reasoning: '11 engineers, ~6 office staff across two companies (retail and trade). Strong fit profile for Simpro—well established during discovery.',
+        reasoning: '11 engineers, ~6 office staff across two companies (retail and trade). Strong fit profile for Simpro Group—well established during discovery.',
         coaching: 'Gold Standard. Size and structure confirmed and appropriate. Note the two-company structure for the AE handoff.',
       },
       {

@@ -28,7 +28,7 @@ export const SAMPLE_AE_SESSION: DemoSession = {
     ],
     topFixes: [
       '**Anchor ROI before price** — get two specific numbers from Craig\'s data (hours saved × team size, or quote-to-job conversion uplift) before the commercial slide appears',
-      '**Attempt the trial close** — "On a scale of 1 to 10, how confident are you that Simpro solves the problem we\'ve been discussing?" must happen before price every time',
+      '**Attempt the trial close** — "On a scale of 1 to 10, how confident are you that Simpro Group solves the problem we\'ve been discussing?" must happen before price every time',
       '**Map the stakeholder picture** — Craig mentioned his Operations Manager twice; confirm whether she\'s involved in the decision before the next step is agreed',
     ],
     scores: [
@@ -48,19 +48,19 @@ export const SAMPLE_AE_SESSION: DemoSession = {
         criterionId: 'gs_positioning',
         score: 8,
         reasoning: 'Consistently linked product capabilities to business outcomes. "Automated quoting = three hours back per job" and "live WIP dashboard = no more end-of-day catch-up calls" were both strong. One feature (document storage) was presented as a capability without a business outcome.',
-        coaching: 'Apply the "so that" test to every feature: "Simpro does X, so that your business achieves Y." If you can\'t complete the sentence for a feature, don\'t mention it in the demo.',
+        coaching: 'Apply the "so that" test to every feature: "Simpro Group does X, so that your business achieves Y." If you can\'t complete the sentence for a feature, don\'t mention it in the demo.',
       },
       {
         criterionId: 'gs_closing',
         score: 4,
         reasoning: 'No 1-10 trial close attempted at any point. The call ended with "I\'ll send you a proposal" — no calendar invite booked, no commitment to a specific next action from Craig.',
-        coaching: 'Before revealing price, always ask: "On a scale of 1 to 10, how confident are you that Simpro solves the problem we\'ve been discussing today?" Anything below an 8 means objections are still unresolved. Above an 8, you have permission to close. Then book the next step on the call — do not leave without a date in the diary.',
+        coaching: 'Before revealing price, always ask: "On a scale of 1 to 10, how confident are you that Simpro Group solves the problem we\'ve been discussing today?" Anything below an 8 means objections are still unresolved. Above an 8, you have permission to close. Then book the next step on the call — do not leave without a date in the diary.',
       },
       {
         criterionId: 'gs_price_as_weapon',
         score: 5,
         reasoning: 'Price was introduced as the third slide after a brief ROI summary — before specific ROI numbers had been anchored in Craig\'s terms. When Craig said "that\'s more than I expected", James offered a 10% discount rather than defending the investment with data.',
-        coaching: 'Reverse the sequence: ROI anchored in prospect\'s numbers first, then price. "Based on what we\'ve discussed — 3 hours saved per job, 40 jobs per month — that\'s 120 hours a month. At your labour rate, Simpro pays for itself in the first two months." Then price feels like a bargain, not a burden.',
+        coaching: 'Reverse the sequence: ROI anchored in prospect\'s numbers first, then price. "Based on what we\'ve discussed — 3 hours saved per job, 40 jobs per month — that\'s 120 hours a month. At your labour rate, Simpro Group pays for itself in the first two months." Then price feels like a bargain, not a burden.',
       },
       {
         criterionId: 'gs_roi_quantification',
@@ -95,7 +95,7 @@ export const SAMPLE_AE_SESSION: DemoSession = {
       {
         criterionId: 'ps_close_next_steps',
         score: 7,
-        reasoning: 'Confirmed 80/20 fit clearly: "Based on what we\'ve covered today, Simpro handles about 90% of what Robinson Roofing needs out of the box." The buying signal question ("is there anything you\'ve seen today that doesn\'t fit how you work?") was asked and Craig had no blockers. Admin follow-up — confirming Craig\'s email for the proposal — was not verified on the call.',
+        reasoning: 'Confirmed 80/20 fit clearly: "Based on what we\'ve covered today, Simpro Group handles about 90% of what Robinson Roofing needs out of the box." The buying signal question ("is there anything you\'ve seen today that doesn\'t fit how you work?") was asked and Craig had no blockers. Admin follow-up — confirming Craig\'s email for the proposal — was not verified on the call.',
         coaching: 'Before ending every call: (1) confirm next step date/time in the calendar, (2) verify the correct email and CC for the proposal, (3) confirm who else from Craig\'s team should be on the next call. These three take 90 seconds and prevent a week of "just checking in" emails.',
       },
     ],

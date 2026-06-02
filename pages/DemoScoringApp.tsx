@@ -1095,7 +1095,7 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
                             </p>
                           )}
                           <p className="text-slate-500">
-                            Simpro Sales Call Scoring Framework
+                            Simpro Group Sales Call Scoring Framework
                           </p>
                         </div>
                         <div className="flex gap-3 items-center">

@@ -429,7 +429,7 @@ export const BdrCallScorecard: React.FC<BdrCallScorecardProps> = ({
         {/* ── Footer ── */}
         <div className="bg-brand-navy px-6 py-3 flex items-center justify-between border-t border-white/10">
           <span className="text-xs text-slate-400">
-            Simpro BDR Gold Standard · Confidential Coaching Document · {formatDate(session.createdAt)}
+            Simpro Group BDR Gold Standard · Confidential Coaching Document · {formatDate(session.createdAt)}
           </span>
           <span className="text-xs font-semibold text-brand-yellow">
             Score: {totalScore}/46 pts · Grade {getBdrGrade(totalScore)} · {ai?.demoBooked ? 'Demo Booked ✓' : 'No Demo'}

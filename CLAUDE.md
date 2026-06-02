@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-React + TypeScript + Vite application for scoring Account Executive discovery/sales calls. AI (Gemini/OpenAI/Anthropic) analyzes call transcripts against a 100-point rubric based on Simpro's internal Sales Call Scoring Framework.
+React + TypeScript + Vite application for scoring Account Executive discovery/sales calls. AI (Gemini/OpenAI/Anthropic) analyzes call transcripts against a 100-point rubric based on Simpro Group's internal Sales Call Scoring Framework.
 
 ## Development Commands
 

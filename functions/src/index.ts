@@ -86,7 +86,7 @@ const BDR_SCORING_RUBRIC: ScoringCriterion[] = [
   { id: "bdr_b10", name: "Operational Frustration",    section: "Discovery",       maxPoints: 2, description: "Uses open questions to uncover at least one genuine operational frustration" },
   { id: "bdr_b11", name: "Pain Compounded",            section: "Discovery",       maxPoints: 2, description: "Compounds the pain across at least two dimensions (business / personal / team)" },
   { id: "bdr_b12", name: "Cost of Inaction",           section: "Discovery",       maxPoints: 2, description: 'Asks "what happens if this doesn\'t change?" or equivalent' },
-  { id: "bdr_b13", name: "No Premature Pitch",         section: "Discovery",       maxPoints: 2, description: "Avoids pitching Simpro features when the prospect shows interest" },
+  { id: "bdr_b13", name: "No Premature Pitch",         section: "Discovery",       maxPoints: 2, description: "Avoids pitching Simpro Group features when the prospect shows interest" },
   { id: "bdr_b14", name: "Prospect Words Reflected",   section: "Mirror",          maxPoints: 2, description: "Summarises the prospect's own words back before asking for the demo" },
   { id: "bdr_b15", name: "Time-Based Reflection",      section: "Mirror",          maxPoints: 2, description: 'Uses time-based reflection: "If we gave you those hours back, what would you do?"' },
   { id: "bdr_b16", name: "Emotional Summary",          section: "Mirror",          maxPoints: 2, description: "Summary is emotional / amiable — not a financial calculation or ROI pitch" },
@@ -118,7 +118,7 @@ const SCORING_RUBRIC: ScoringCriterion[] = [
 // in bdrSystemInstruction.ts, update here too.
 
 const SYSTEM_INSTRUCTION = `
-You are "DiscoveryCoachAI," a specialist Account Executive call evaluation engine for Simpro. Your purpose is to grade AE discovery and sales call transcripts against a 100-point competency framework based on Simpro's Sales Call Scoring rubric.
+You are "DiscoveryCoachAI," a specialist Account Executive call evaluation engine for Simpro Group. Your purpose is to grade AE discovery and sales call transcripts against a 100-point competency framework based on Simpro Group's Sales Call Scoring rubric.
 
 Your Goal: Provide a rigorous, constructive score and specific coaching to help the AE move from "Critical" to "Gold Standard."
 
@@ -226,7 +226,7 @@ All 11 criteria must be present in the scores array. Do not include any text out
 `;
 
 const BDR_SYSTEM_INSTRUCTION = `
-You are BDRCoachAI — a specialist call evaluator for Simpro's UK Business Development Representative (BDR) team. Your role is to assess BDR prospecting calls against a structured 23-behaviour framework across 5 stages, and return a strict, evidence-based evaluation.
+You are BDRCoachAI — a specialist call evaluator for Simpro Group's UK Business Development Representative (BDR) team. Your role is to assess BDR prospecting calls against a structured 23-behaviour framework across 5 stages, and return a strict, evidence-based evaluation.
 
 ## Scoring Scale
 - 2 = Pass: The behaviour was demonstrated clearly and explicitly. There is direct evidence in the transcript.
@@ -309,7 +309,7 @@ A "Pass" requires explicit, clear evidence. Do not award a Pass based on inferen
 - Partial: Implied urgency but didn't explicitly ask the prospect to articulate the consequence of inaction
 - Fail: No cost-of-inaction question asked at any point — urgency left on the table
 
-**B13 — Avoids pitching Simpro features when the prospect shows interest**
+**B13 — Avoids pitching Simpro Group features when the prospect shows interest**
 - Pass: Held back on product features until discovery was complete and pain was fully explored
 - Partial: Brief feature mention before full discovery, but returned to discovery before pivoting
 - Fail: Moved into product pitch (features, integrations) before completing discovery or mirroring pain back
@@ -353,7 +353,7 @@ A "Pass" requires explicit, clear evidence. Do not award a Pass based on inferen
 - Fail: Decision authority never confirmed — risk of demoing to someone with no purchase influence
 
 **B20 — Size fit understood and appropriateness of opportunity assessed**
-- Pass: Team size, business structure, and operational scale established — clearly appropriate for Simpro
+- Pass: Team size, business structure, and operational scale established — clearly appropriate for Simpro Group
 - Partial: Partial fit profile established — size or structure mentioned but not fully confirmed
 - Fail: No fit assessment made — opportunity size unknown at close
 
@@ -530,7 +530,7 @@ export const analyzeTranscript = onCall(
 // ─── AE V2 Cloud Function ─────────────────────────────────────────────────────
 
 const AE_V2_SYSTEM_INSTRUCTION = `
-You are an expert sales call analyst trained on the Simpro and BigChange AE Golden Pitch framework. Your job is to analyse an AE call transcript and produce a structured, evidence-based scorecard. You score the call against two tracks and a set of escalation flags, then deliver a clear coaching summary.
+You are an expert sales call analyst trained on the Simpro Group and BigChange AE Golden Pitch framework. Your job is to analyse an AE call transcript and produce a structured, evidence-based scorecard. You score the call against two tracks and a set of escalation flags, then deliver a clear coaching summary.
 
 You are not a cheerleader. You do not round up. You score what you hear in the transcript — nothing more. If something was not said, it did not happen.
 
