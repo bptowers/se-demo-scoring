@@ -7,8 +7,10 @@ import { Login } from './pages/Login';
 import { ManagerDashboard } from './pages/ManagerDashboard';
 import { AeDashboard } from './pages/AeDashboard';
 import { CallHistory } from './pages/CallHistory';
+import { SeRubricGuide } from './pages/SeRubricGuide';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { getManagerConfig } from './config/managerConfig';
+import { canViewSeRubric } from './config/rubricAccess';
 
 const ManagerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -28,6 +30,20 @@ const ManagerDashboardWrapper: React.FC = () => {
   const { user } = useAuth();
   const config = getManagerConfig(user?.email);
   return config ? <ManagerDashboard managerConfig={config} /> : null;
+};
+
+const RubricRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-brand-navy flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-yellow"></div>
+      </div>
+    );
+  }
+  if (!user) return <Navigate to="/login" replace />;
+  if (!canViewSeRubric(user.email)) return <Navigate to="/" replace />;
+  return <>{children}</>;
 };
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -102,6 +118,16 @@ const AppRoutes: React.FC = () => {
               <CallHistory />
             </Layout>
           </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/se-rubric"
+        element={
+          <RubricRoute>
+            <Layout>
+              <SeRubricGuide />
+            </Layout>
+          </RubricRoute>
         }
       />
     </Routes>

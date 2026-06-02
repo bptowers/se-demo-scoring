@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '../components/Button';
 import { ScoreReveal } from '../components/ScoreReveal';
 import { BdrCallScorecard } from '../components/BdrCallScorecard';
@@ -14,6 +15,7 @@ import { processTextFile, processPdfFile, processDocxFile, validateFileSize, get
 import { saveEvaluation, getUserAverageScore, getLastDemoScore, getUserRecentScores } from '../services/firestoreService';
 import { useAuth } from '../context/AuthContext';
 import { getManagerConfig, getDirectReports } from '../config/managerConfig';
+import { canViewSeRubric } from '../config/rubricAccess';
 import { Upload, FileText, CheckCircle, User, UserCog, Bot, ArrowRight, AlertCircle, Mic2, Award, TrendingUp, AlertTriangle, Download, PlayCircle, Phone, RefreshCw } from 'lucide-react';
 import { fetchClariCalls, fetchClariTranscript, ClariCall } from '../services/clariService';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, Tooltip } from 'recharts';
@@ -113,6 +115,7 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
   const { user } = useAuth();
   const [rubricType] = useState<ScoringRubricType>('AE');
   const aeManagerConfig = getManagerConfig(user?.email);
+  const showRubricLink = canViewSeRubric(user?.email);
   const canSelectGeminiModel = user?.email?.toLowerCase() === BRAD_TESTER_EMAIL;
   const aeDirectReports = aeManagerConfig ? getDirectReports(aeManagerConfig).sort() : [];
   const aeDirectReportsKey = aeDirectReports.join('|');
@@ -482,13 +485,31 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
           <div className="hidden lg:block">
              <div className="bg-white/10 backdrop-blur-md p-4 rounded-lg border border-white/20 flex gap-8">
                 <div className="text-center">
-                   <div className="text-2xl font-bold text-white">100</div>
-                   <div className="text-xs text-slate-400 uppercase font-semibold">Max Score</div>
+                   {showRubricLink ? (
+                     <Link to="/se-rubric" className="block rounded-lg px-2 py-1 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand-yellow transition-colors">
+                       <div className="text-2xl font-bold text-white underline decoration-brand-yellow decoration-2 underline-offset-4">100</div>
+                       <div className="text-xs text-slate-400 uppercase font-semibold">Max Score</div>
+                     </Link>
+                   ) : (
+                     <>
+                       <div className="text-2xl font-bold text-white">100</div>
+                       <div className="text-xs text-slate-400 uppercase font-semibold">Max Score</div>
+                     </>
+                   )}
                 </div>
                 <div className="w-px bg-white/20"></div>
                 <div className="text-center">
-                   <div className="text-2xl font-bold text-brand-yellow">10</div>
-                   <div className="text-xs text-slate-400 uppercase font-semibold">SE Categories</div>
+                   {showRubricLink ? (
+                     <Link to="/se-rubric" className="block rounded-lg px-2 py-1 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-brand-yellow transition-colors">
+                       <div className="text-2xl font-bold text-brand-yellow underline decoration-white decoration-2 underline-offset-4">10</div>
+                       <div className="text-xs text-slate-400 uppercase font-semibold">SE Categories</div>
+                     </Link>
+                   ) : (
+                     <>
+                       <div className="text-2xl font-bold text-brand-yellow">10</div>
+                       <div className="text-xs text-slate-400 uppercase font-semibold">SE Categories</div>
+                     </>
+                   )}
                 </div>
              </div>
           </div>
