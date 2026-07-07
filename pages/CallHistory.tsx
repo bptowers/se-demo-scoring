@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Search, Filter, ExternalLink, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getManagerConfig, getDirectReports, ALL_AES_SENTINEL } from '../config/managerConfig';
-import { getAeSessionsForManager, getUserEvaluations, deleteEvaluation } from '../services/firestoreService';
+import { getAeSessionsForManager, getAeSessionsByName, getUserEvaluations, deleteEvaluation } from '../services/firestoreService';
 import { calculateTotalScore, getScoreInterpretation, getInterpretationLabel, getInterpretationColor, getBdrGrade, getBdrGradeLabel, getBdrGradeColor } from '../utils/scoringHelpers';
 import { DemoSession, SCORING_RUBRIC, BDR_SCORING_RUBRIC } from '../types';
 import { AeSessionScorecard } from '../components/AeSessionScorecard';
@@ -55,7 +55,16 @@ export const CallHistory: React.FC = () => {
             data = merged.filter(s => reports.includes(s.callDeliveredBy || ''));
           }
         } else {
-          data = await getUserEvaluations(user.uid);
+          const [ownSessions, scoredForMe] = await Promise.all([
+            getUserEvaluations(user.uid),
+            user.displayName ? getAeSessionsByName(user.displayName) : Promise.resolve([] as DemoSession[]),
+          ]);
+          const merged = [...ownSessions];
+          const seen = new Set(merged.map(s => s.id));
+          for (const s of scoredForMe) {
+            if (!seen.has(s.id)) { merged.push(s); seen.add(s.id); }
+          }
+          data = merged;
         }
         // Show completed sessions with any scoring payload.
         setSessions(data.filter(s => (s.status === 'complete' || s.status === 'scoring') && (s.aiScoring || s.aiV2 || s.seScoring)));

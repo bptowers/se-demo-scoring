@@ -221,7 +221,7 @@ export const BdrCallScorecard: React.FC<BdrCallScorecardProps> = ({
         <div className="bg-slate-800 px-6 py-4 flex flex-wrap gap-6 items-center border-b-2 border-orange-500">
           {([
             { label: 'BDR Rep',  value: session.callDeliveredBy ?? '—' },
-            { label: 'Prospect', value: ai?.prospectCompany ?? '—' },
+            { label: 'Customer', value: session.customerName ?? ai?.prospectCompany ?? '—' },
             { label: 'Contact',  value: ai?.contactName ?? '—' },
             { label: 'Duration', value: ai?.callDuration ?? '—' },
             { label: 'Date',     value: formatDate(session.createdAt) },

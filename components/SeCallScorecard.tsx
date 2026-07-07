@@ -135,6 +135,9 @@ export const SeCallScorecard: React.FC<SeCallScorecardProps> = ({
             <div>
               <p className="text-brand-yellow text-xs font-bold uppercase tracking-widest mb-1">SE Demo Scorecard</p>
               <h1 className="text-2xl font-black text-white">{evaluation.target_se_name || 'Sales Engineer'}</h1>
+              {session.customerName && (
+                <p className="text-slate-300 text-xs mt-0.5">Customer: <span className="font-semibold">{session.customerName}</span></p>
+              )}
               <p className="text-slate-300 text-sm mt-1">{formatDate(session.createdAt)}</p>
               <div className="flex flex-wrap gap-2 mt-2">
                 <span className="inline-block px-2 py-0.5 bg-white/10 rounded text-xs text-slate-300 font-semibold">

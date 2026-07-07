@@ -441,6 +441,27 @@ export const getAeSessionsForManager = async (): Promise<DemoSession[]> => {
 };
 
 /**
+ * Get all AE sessions from the top-level collection where callDeliveredBy matches a name.
+ * Used so SEs can see calls scored on their behalf by a manager.
+ */
+export const getAeSessionsByName = async (name: string): Promise<DemoSession[]> => {
+  if (!isFirebaseConfigured()) return [];
+  const db = getFirebaseFirestore();
+  if (!db) throw new Error('Firestore is not initialized');
+  try {
+    const aeRef = collection(db, 'aeSessions');
+    const q = query(aeRef, where('callDeliveredBy', '==', name));
+    const querySnapshot = await getDocs(q);
+    const sessions: DemoSession[] = [];
+    querySnapshot.forEach((docSnap) => sessions.push(firestoreToSession(docSnap.data())));
+    return sessions;
+  } catch (error) {
+    console.error('Error getting AE sessions by name:', error);
+    throw error;
+  }
+};
+
+/**
  * Update the Stage 6 check-off for a BDR session (manager-only action).
  * Writes to the top-level bdrSessions collection.
  */

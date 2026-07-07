@@ -14,22 +14,10 @@ service cloud.firestore {
 
     // Top-level AE sessions (dual-written on completion for manager queries)
     match /aeSessions/{sessionId} {
-      // AE managers can read all sessions
-      allow read: if request.auth != null && request.auth.token.email in [
-        'alex.shepherd@bigchange.com',
-        'simon.tusinghamjones@simprogroup.com',
-        'stewart.mclellan@simpro.co.uk',
-        'katy.sollis@simpro.co.uk',
-        'mike.langley@simpro.com',
-        'daniel.metcalf@clockshark.com',
-        'justin.barlow@simpro.com.au',
-        'milan.kumar@simpro.com',
-        'pete.mansel@simpro.com',
-        'thilo.schatz@simpro.us',
-        'michael.weinberg@simpro.com',
-        'jason.smith@simprogroup.com',
-        'brad.towers@simprogroup.com'
-      ];
+      // Any authenticated company user can read — SEs need to query by callDeliveredBy
+      // to see their own sessions scored by managers. Access is restricted at the app
+      // layer (only sessions matching the user's display name are shown).
+      allow read: if request.auth != null;
       // Any authenticated user can write (dual-write on session completion)
       allow write: if request.auth != null;
     }

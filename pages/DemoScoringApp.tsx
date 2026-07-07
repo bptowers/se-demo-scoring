@@ -831,6 +831,19 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
                             Enter the target Sales Engineer if the transcript does not make it obvious.
                           </p>
                         )}
+
+                        <div className="mt-3">
+                          <label className="block text-sm font-semibold text-brand-navy mb-2">
+                            Customer Name:
+                          </label>
+                          <input
+                            type="text"
+                            value={session.customerName || ''}
+                            onChange={(e) => setSession(prev => ({ ...prev, customerName: e.target.value }))}
+                            placeholder="Enter customer / prospect name..."
+                            className="w-full p-2 border border-gray-300 rounded outline-none focus:border-brand-yellow"
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1073,6 +1086,7 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
                     lastDemoScore={lastDemoScore}
                     trend={trendData}
                     callDeliveredBy={session.callDeliveredBy}
+                    customerName={session.customerName}
                     rubricType='BDR'
                     demoBooked={session.aiScoring.demoBooked}
                     bdrStageScores={BDR_STAGES.map(stage => ({ stage, ...getBdrStageScore(session.aiScoring!.scores, stage) }))}
@@ -1113,6 +1127,11 @@ export const DemoScoringApp: React.FC<DemoScoringAppProps> = ({ lockedCallDelive
                           {session.callDeliveredBy && (
                             <p className="text-sm text-gray-600 mt-1">
                               Call conducted by: <span className="font-semibold">{session.callDeliveredBy}</span>
+                            </p>
+                          )}
+                          {session.customerName && (
+                            <p className="text-sm text-gray-600 mt-0.5">
+                              Customer: <span className="font-semibold">{session.customerName}</span>
                             </p>
                           )}
                           <p className="text-slate-500">

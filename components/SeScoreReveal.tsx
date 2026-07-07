@@ -30,6 +30,11 @@ export const SeScoreReveal: React.FC<SeScoreRevealProps> = ({
         <h1 className="text-3xl font-black text-brand-navy">
           {evaluation.target_se_name || session.callDeliveredBy || 'Sales Engineer'}
         </h1>
+        {session.customerName && (
+          <p className="text-sm text-gray-600 mt-1">
+            Customer: <span className="font-semibold">{session.customerName}</span>
+          </p>
+        )}
         <p className="text-gray-400 text-sm mt-1">{formatDate(session.createdAt)}</p>
       </div>
 

@@ -25,6 +25,8 @@ export const MANAGERS: ManagerConfig[] = [
   { name: 'Jason Smith',            email: 'jason.smith@simprogroup.com',          region: 'Global',         directReports: ['Rob Inman', 'Rob Greer', 'Rob Sanders', 'Amer Sharief', 'Sheryl Bacor', 'Heather Maxwell', 'Melissa Jones'] },
   // Global access — sees all AEs across all regions
   { name: 'Brad Towers',            email: 'brad.towers@simprogroup.com',          region: 'Global',         directReports: [ALL_AES_SENTINEL] },
+  { name: 'Fred Voccola',           email: 'fred.voccola@simprogroup.com',         region: 'Global',         directReports: [ALL_AES_SENTINEL] },
+  { name: 'Frank Tisellano',        email: 'frank.tisellano@simprogroup.com',      region: 'Global',         directReports: [ALL_AES_SENTINEL] },
 ];
 
 export const getManagerConfig = (email: string | null | undefined): ManagerConfig | null =>

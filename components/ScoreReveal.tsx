@@ -20,6 +20,7 @@ interface ScoreRevealProps {
   lastDemoScore: number | null;
   trend: TrendDirection;
   callDeliveredBy?: string;
+  customerName?: string;
   rubricType?: ScoringRubricType;
   demoBooked?: boolean;
   bdrStageScores?: { stage: string; earned: number; max: number; pct: number }[];
@@ -33,6 +34,7 @@ export const ScoreReveal: React.FC<ScoreRevealProps> = ({
   lastDemoScore,
   trend,
   callDeliveredBy,
+  customerName,
   rubricType = 'AE',
   demoBooked,
   bdrStageScores,
@@ -69,6 +71,11 @@ export const ScoreReveal: React.FC<ScoreRevealProps> = ({
             <p className="text-sm text-gray-600 mt-2">
               {isBdr ? 'BDR' : 'Call Conducted By'}:{' '}
               <span className="font-semibold">{callDeliveredBy}</span>
+            </p>
+          )}
+          {customerName && (
+            <p className="text-sm text-gray-600 mt-1">
+              Customer: <span className="font-semibold">{customerName}</span>
             </p>
           )}
         </div>

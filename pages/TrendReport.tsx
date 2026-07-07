@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getUserEvaluations, getBdrSessionsForManager } from '../services/firestoreService';
+import { getUserEvaluations, getBdrSessionsForManager, getAeSessionsByName } from '../services/firestoreService';
 import { DemoSession, ScorerProfile, SCORING_RUBRIC, BDR_SCORING_RUBRIC, ScoringRubricType } from '../types';
 import { format, subDays } from 'date-fns';
 import {
@@ -92,8 +92,18 @@ export const TrendReport: React.FC = () => {
           default:    startDate = undefined;
         }
 
-        const ownData = await getUserEvaluations(user.uid, { startDate, orderBy: 'completedAt' });
-        let allData = ownData.filter(e => e.status === 'complete' && e.completedAt);
+        const [ownData, scoredForMe] = await Promise.all([
+          getUserEvaluations(user.uid, { startDate, orderBy: 'completedAt' }),
+          user.displayName ? getAeSessionsByName(user.displayName) : Promise.resolve([] as DemoSession[]),
+        ]);
+        const mergedOwn = [...ownData];
+        const seenIds = new Set(mergedOwn.map(e => e.id));
+        for (const s of scoredForMe) {
+          if (!seenIds.has(s.id)) { mergedOwn.push(s); seenIds.add(s.id); }
+        }
+        let allData = mergedOwn
+          .filter(e => e.status === 'complete' && e.completedAt)
+          .sort((a, b) => (a.completedAt?.getTime() || 0) - (b.completedAt?.getTime() || 0)); // oldest first
 
         // BDR manager: merge all team BDR sessions
         if (isManager) {
@@ -193,8 +203,12 @@ export const TrendReport: React.FC = () => {
 
   const recentTrend = displayedEvaluations.length >= 2
     ? (() => {
-        const recent = normalizeScore(getAeScore(displayedEvaluations[0]), displayedEvaluations[0]);
-        const previous = normalizeScore(getAeScore(displayedEvaluations[1]), displayedEvaluations[1]);
+        // Sort ascending so last item is always the most recent, regardless of fetch order
+        const sorted = [...displayedEvaluations].sort(
+          (a, b) => (a.completedAt?.getTime() || 0) - (b.completedAt?.getTime() || 0)
+        );
+        const recent = normalizeScore(getAeScore(sorted[sorted.length - 1]), sorted[sorted.length - 1]);
+        const previous = normalizeScore(getAeScore(sorted[sorted.length - 2]), sorted[sorted.length - 2]);
         const diff = recent - previous;
         if (diff > 3) return { label: 'Improving', icon: '↑', color: 'text-green-500' };
         if (diff < -3) return { label: 'Declining', icon: '↓', color: 'text-red-500' };

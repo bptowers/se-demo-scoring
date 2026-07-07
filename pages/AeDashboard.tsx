@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, ReferenceLine,
+  ResponsiveContainer, ReferenceLine, ComposedChart, Bar,
+  RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from 'recharts';
 import { Phone, BarChart2, TrendingUp, Award, ExternalLink, History, Users, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getUserEvaluations, getAeSessionsForManager, deleteEvaluation } from '../services/firestoreService';
+import { getUserEvaluations, getAeSessionsForManager, getAeSessionsByName, deleteEvaluation } from '../services/firestoreService';
 import { getScoreInterpretation, getInterpretationLabel, getInterpretationColor } from '../utils/scoringHelpers';
-import { DemoSession } from '../types';
+import { DemoSession, SCORING_RUBRIC } from '../types';
 import { AeSessionScorecard } from '../components/AeSessionScorecard';
 import { SeCallScorecard } from '../components/SeCallScorecard';
 import { SAMPLE_SE_SESSION } from '../utils/sampleSeSession';
@@ -130,6 +131,194 @@ const TrendChart: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) => {
         />
       </LineChart>
     </ResponsiveContainer>
+  );
+};
+
+// ─── SE Comparison Chart ─────────────────────────────────────────────────────
+
+interface SeComparisonRow {
+  name: string;
+  average: number;
+  latest: number;
+  count: number;
+}
+
+const SeComparisonChart: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> = ({ sessions, aeNames }) => {
+  const data: SeComparisonRow[] = aeNames
+    .map(name => {
+      const seSessions = [...sessions.filter(s => s.callDeliveredBy === name)]
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      if (seSessions.length === 0) return null;
+      const scores = seSessions.map(s => getSessionScorePct(s));
+      const average = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+      const latest = getSessionScorePct(seSessions[0]);
+      return { name, average, latest, count: seSessions.length };
+    })
+    .filter((d): d is SeComparisonRow => d !== null)
+    .sort((a, b) => b.average - a.average);
+
+  if (data.length < 2) return null;
+
+  const chartHeight = Math.max(200, data.length * 44 + 40);
+
+  return (
+    <ResponsiveContainer width="100%" height={chartHeight}>
+      <ComposedChart layout="vertical" data={data} margin={{ top: 10, right: 50, bottom: 5, left: 110 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
+        <XAxis
+          type="number"
+          domain={[0, 100]}
+          tick={{ fontSize: 11, fill: '#94a3b8' }}
+          tickFormatter={(v: number) => `${v}%`}
+        />
+        <YAxis
+          type="category"
+          dataKey="name"
+          tick={{ fontSize: 11, fill: '#374151' }}
+          width={105}
+        />
+        <Tooltip
+          contentStyle={{ fontSize: 12, borderRadius: 8 }}
+          formatter={(value: number, name: string) => [
+            `${value}%`,
+            name === 'average' ? 'Avg Score' : 'Latest Score',
+          ]}
+        />
+        <ReferenceLine x={75} stroke="#16a34a" strokeDasharray="4 2" label={{ value: 'Pass', fontSize: 10, fill: '#16a34a', position: 'insideTopRight' }} />
+        <ReferenceLine x={40} stroke="#dc2626" strokeDasharray="4 2" />
+        <Bar dataKey="average" name="average" fill="#1e3a5f" radius={[0, 3, 3, 0]} barSize={18} />
+        <Line
+          type="monotone"
+          dataKey="latest"
+          name="latest"
+          stroke="transparent"
+          strokeWidth={0}
+          dot={{ fill: '#ffc20e', r: 5, stroke: '#1e3a5f', strokeWidth: 1.5 }}
+          activeDot={{ r: 7 }}
+        />
+      </ComposedChart>
+    </ResponsiveContainer>
+  );
+};
+
+// ─── AE Criterion Radar ───────────────────────────────────────────────────────
+
+const CRITERION_SHORT_LABELS: Record<string, string> = {
+  gs_discovery:           'Discovery',
+  gs_objection_handling:  'Obj. Handling',
+  gs_positioning:         'Positioning',
+  gs_closing:             'Closing',
+  gs_price_as_weapon:     'Price as Weapon',
+  gs_roi_quantification:  'ROI',
+  ps_opening:             'Opening',
+  ps_discovery_gates:     'Discovery Gates',
+  ps_value_mirror:        'Value Mirror',
+  ps_demo_execution:      'Demo Exec.',
+  ps_close_next_steps:    'Close & Next Steps',
+};
+
+const getBarColor = (pct: number) => {
+  if (pct >= 85) return 'bg-green-500';
+  if (pct >= 75) return 'bg-brand-yellow';
+  if (pct >= 60) return 'bg-amber-500';
+  return 'bg-red-500';
+};
+
+const AeCriterionRadar: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) => {
+  // Support both SE rubric (seScoring) and AE rubric (aiScoring) sessions
+  const seSessions = sessions.filter(s => !!s.seScoring);
+  const aiSessions = sessions.filter(s => !!s.aiScoring);
+  const qualifyingSessions = seSessions.length >= aiSessions.length ? seSessions : aiSessions;
+  const useSeRubric = qualifyingSessions === seSessions;
+
+  if (qualifyingSessions.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-40 text-sm text-gray-400">
+        No scored sessions yet.
+      </div>
+    );
+  }
+
+  // Build radar data — aggregate avg % of max per criterion across sessions
+  const radarData = useSeRubric
+    ? (() => {
+        // SE rubric: aggregate from seScoring.evaluations[0].category_scores
+        const categoryMap = new Map<string, { total: number; count: number; max: number }>();
+        for (const s of seSessions) {
+          const cats = s.seScoring?.evaluations?.[0]?.category_scores ?? [];
+          for (const cat of cats) {
+            const prev = categoryMap.get(cat.category) ?? { total: 0, count: 0, max: cat.max_points };
+            categoryMap.set(cat.category, {
+              total: prev.total + cat.points_awarded,
+              count: prev.count + 1,
+              max: cat.max_points,
+            });
+          }
+        }
+        return Array.from(categoryMap.entries()).map(([cat, v]) => ({
+          label: cat.length > 18 ? cat.split(' ').slice(0, 2).join(' ') : cat,
+          fullName: cat,
+          pct: v.max > 0 ? Math.round((v.total / v.count / v.max) * 100) : 0,
+        }));
+      })()
+    : SCORING_RUBRIC.map(criterion => {
+        const scores = aiSessions
+          .map(s => s.aiScoring!.scores.find(sc => sc.criterionId === criterion.id))
+          .filter((sc): sc is NonNullable<typeof sc> => !!sc);
+        const avgPct = scores.length > 0
+          ? Math.round(scores.reduce((sum, sc) => sum + (sc.score / criterion.maxPoints) * 100, 0) / scores.length)
+          : 0;
+        return {
+          label: CRITERION_SHORT_LABELS[criterion.id] ?? criterion.name,
+          fullName: criterion.name,
+          pct: avgPct,
+        };
+      });
+
+  const gaps = [...radarData].sort((a, b) => a.pct - b.pct).slice(0, 3);
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_0.9fr] gap-6">
+      <ResponsiveContainer width="100%" height={280}>
+        <RadarChart data={radarData} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
+          <PolarGrid stroke="#e2e8f0" />
+          <PolarAngleAxis dataKey="label" tick={{ fontSize: 10, fill: '#475569', fontWeight: 600 }} />
+          <PolarRadiusAxis angle={90} domain={[0, 100]} tick={false} axisLine={false} />
+          <Radar
+            name="Avg score"
+            dataKey="pct"
+            stroke="#1e3a5f"
+            fill="#ffc20e"
+            fillOpacity={0.35}
+            strokeWidth={2}
+          />
+          <Tooltip
+            formatter={(value: number, _name: string, item: any) => [
+              `${value}%`,
+              item.payload.fullName,
+            ]}
+            contentStyle={{ fontSize: 12, borderRadius: 8, borderColor: '#e2e8f0' }}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+
+      <div>
+        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Biggest Gaps</h3>
+        <div className="space-y-3">
+          {gaps.map(item => (
+            <div key={item.label} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-sm font-bold text-brand-navy leading-tight">{item.fullName}</p>
+                <span className="text-xs font-black text-slate-600 ml-2 flex-shrink-0">{item.pct}%</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-white overflow-hidden border border-slate-100">
+                <div className={`h-full ${getBarColor(item.pct)}`} style={{ width: `${item.pct}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };
 
@@ -257,7 +446,16 @@ export const AeDashboard: React.FC = () => {
             ? merged
             : merged.filter(s => reportsLower.includes((s.callDeliveredBy || '').toLowerCase()));
         } else {
-          all = await withTimeout(getUserEvaluations(user.uid));
+          const [ownSessions, scoredForMe] = await withTimeout(Promise.all([
+            getUserEvaluations(user.uid),
+            user.displayName ? getAeSessionsByName(user.displayName) : Promise.resolve([] as DemoSession[]),
+          ]));
+          const merged = [...ownSessions];
+          const seen = new Set(merged.map(s => s.id));
+          for (const s of scoredForMe) {
+            if (!seen.has(s.id)) { merged.push(s); seen.add(s.id); }
+          }
+          all = merged;
         }
         setSessions(all.filter(s => s.rubricType !== 'BDR' && s.status === 'complete' && (!!s.aiScoring || !!s.aiV2 || !!s.seScoring)));
       } catch (e) {
@@ -401,6 +599,21 @@ export const AeDashboard: React.FC = () => {
         />
       </div>
 
+      {/* Skill Profile Radar */}
+      {sorted.some(s => !!s.aiScoring || !!s.seScoring) && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-bold text-brand-navy">
+              Skill Profile{selectedAe !== 'all' ? ` — ${selectedAe}` : ''}
+            </h2>
+            <span className="text-xs text-gray-400">
+              {sorted.filter(s => !!s.aiScoring || !!s.seScoring).length} call{sorted.filter(s => !!s.aiScoring || !!s.seScoring).length !== 1 ? 's' : ''} analysed · avg % of criterion max
+            </span>
+          </div>
+          <AeCriterionRadar sessions={sorted} />
+        </div>
+      )}
+
       {/* Trend Chart */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
         <h2 className="text-base font-bold text-brand-navy mb-4">
@@ -408,6 +621,25 @@ export const AeDashboard: React.FC = () => {
         </h2>
         <TrendChart sessions={sorted} />
       </div>
+
+      {/* Team Comparison Chart — managers viewing all SEs */}
+      {isManager && selectedAe === 'all' && aeNames.length > 1 && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-base font-bold text-brand-navy">Team Score Comparison</h2>
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-2.5 rounded-sm bg-brand-navy" /> Avg
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-full bg-brand-yellow border border-brand-navy" /> Latest
+              </span>
+            </div>
+          </div>
+          <p className="text-xs text-gray-400 mb-4">Sorted by average · dots show most recent call · green line = pass threshold</p>
+          <SeComparisonChart sessions={sessions} aeNames={aeNames} />
+        </div>
+      )}
 
       {/* Call History */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">

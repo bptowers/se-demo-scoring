@@ -49,6 +49,7 @@ export interface DemoSession {
   selectedProvider?: LLMProvider;
   selectedGeminiModel?: GeminiModelId;
   callDeliveredBy?: string; // Name of AE who conducted (defaults to user.displayName)
+  customerName?: string;   // Name of the customer/prospect on the call
   rubricType?: ScoringRubricType;   // defaults to 'AE' for existing sessions
   bdrRepEmail?: string;             // email of BDR who submitted (for manager queries)
   stage6Checklist?: boolean[];      // BDR: manager check-off for Stage 6 follow-up (not scored)

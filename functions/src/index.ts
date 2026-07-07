@@ -883,17 +883,79 @@ Scoring standard:
 - 40-59: Poor. Generic, reactive, unclear, weakly connected to customer needs, presenter-centric, or technically concerning.
 - 0-39: Unacceptable or insufficient evidence.
 
+Calibration standard: Most competent SEs should score in the 75-84 range (Acceptable/Passable). Scores of 85-94 require clearly demonstrated strength across multiple categories with specific transcript evidence. Scores of 95 or above require near-flawless performance and should be rare — a score above 90 means you could show this call to any customer as a benchmark example of excellent SE performance. When in doubt, score lower rather than higher. Err on the side of rigor.
+
 Primary scoring rubric, total maximum 100 points:
-1. Customer Context and Discovery — 15 points. Evaluate discovery, customer context, current/future state, stakeholders, constraints, success criteria, and use of prior context.
-2. Demo Relevance and Storyline — 18 points. Evaluate whether the demo is tailored, coherent, outcome-driven, mapped to use cases, and avoids feature dumping.
-3. Product and Technical Credibility — 15 points. Evaluate accuracy, confidence, appropriate technical depth, integrations, implementation, security, data flow, governance, and honest uncertainty.
-4. Operational Fit and Adoption Readiness — 10 points. Evaluate workflows, handoffs, systems, roles, data, governance, change management, implementation, and day-to-day use.
-5. Value and Business Impact — 10 points. Evaluate whether capability is translated into customer-specific efficiency, risk, revenue, cost, productivity, compliance, customer experience, or strategic value.
-6. Customer Engagement and Active Listening — 10 points. Evaluate two-way conversation, pauses, responsiveness, confirmation, demo adjustment, and avoiding monologue.
-7. Buyer-Centric Demo Language — 5 points. Evaluate whether the SE uses "you", "your team", and "your users" language during workflows instead of mostly "I/we" presenter-centric language. Classify as Predominantly You/Your, Mixed, Predominantly I/We, or Not Observed.
-8. Communication and Executive Presence — 6 points. Evaluate clarity, structure, professionalism, confidence, concision, audience-appropriate depth, and jargon control. Do not double-count buyer-centric language here.
-9. Objection, Concern, and Risk Handling — 7 points. Evaluate concern handling, validation needs, clarification, proof points, follow-up commitments, and risk reduction. If no explicit objection appears, score whether the SE invited concerns or identified validation needs.
-10. Call Leadership, Collaboration, and Next Steps — 4 points. Evaluate agenda/objective support, AE/internal collaboration, transitions, open questions, next steps, owners, and follow-up.
+1. Customer Context and Discovery — 15 points.
+   Evaluate: discovery, customer context, current/future state, stakeholders, constraints, success criteria, prior context use.
+   0-6 pts (Floor): No meaningful discovery; SE proceeds without establishing customer context, pain, or use case.
+   7-10 pts (Average): Some discovery questions asked; basic pain or use case surfaced but stakeholders, constraints, or success criteria are incomplete or missing.
+   11-13 pts (Strong): Clear customer context established; success criteria and key stakeholders identified; prior context leveraged where available.
+   14-15 pts (Exceptional): Comprehensive discovery covering current state, future state, stakeholders, constraints, success criteria, and explicit use of prior account knowledge.
+
+2. Demo Relevance and Storyline — 18 points.
+   Evaluate: tailoring, coherence, outcome-driven narrative, use-case mapping, and avoidance of feature dumping.
+   0-7 pts (Floor): Generic canned demo with no visible customisation to this customer's context, industry, or use cases.
+   8-12 pts (Average): Some tailoring present; relevant features shown, but the demo still follows a product tour structure rather than a customer storyline.
+   13-15 pts (Strong): Demo is coherent and customer-relevant; clear narrative arc tied to customer use cases; most features grounded in customer outcomes.
+   16-18 pts (Exceptional): Fully customised, outcome-driven demo that tells a compelling story for this specific customer; zero feature dumping.
+
+3. Product and Technical Credibility — 15 points.
+   Evaluate: accuracy, confidence, appropriate technical depth, integrations, implementation, security, data flow, governance, and honest handling of uncertainty.
+   0-6 pts (Floor): Significant technical errors, overconfident unsupported claims, or inability to answer reasonable product questions.
+   7-10 pts (Average): Generally accurate; handles common questions adequately but struggles with deeper technical or integration topics; some hedging without follow-up.
+   11-13 pts (Strong): Technically sound; handles integrations and implementation questions with confidence; acknowledges uncertainty appropriately and commits to follow-up.
+   14-15 pts (Exceptional): Deep, accurate technical knowledge demonstrated; proactively addresses complexity, security, or governance; earns clear technical trust.
+
+4. Operational Fit and Adoption Readiness — 10 points.
+   Evaluate: workflows, handoffs, systems, roles, data, governance, change management, implementation, and day-to-day use.
+   0-4 pts (Floor): No discussion of how the product fits into the customer's existing workflows, teams, or systems.
+   5-6 pts (Average): Some mention of operational fit but surface-level; missing change management, specific roles, or implementation realities.
+   7-8 pts (Strong): Addresses how the solution fits the customer's workflows and roles; touches on adoption or implementation considerations.
+   9-10 pts (Exceptional): Thorough operational picture painted; specific workflows, system integrations, roles, change management, and day-one adoption discussed with customer input.
+
+5. Value and Business Impact — 10 points.
+   Evaluate: translation of capability into customer-specific efficiency, risk, revenue, cost, productivity, compliance, customer experience, or strategic value.
+   0-4 pts (Floor): No business value discussed; demo is entirely feature- or functionality-focused.
+   5-6 pts (Average): General value statements made ("saves time", "improves efficiency") but not tied to this customer's specific metrics, goals, or context.
+   7-8 pts (Strong): Customer-specific value articulated in at least one area; connects product capability to a real business outcome for this customer.
+   9-10 pts (Exceptional): Multiple customer-specific value connections made with quantification or explicit tie-back to stated customer priorities; ROI or business case elements present.
+
+6. Customer Engagement and Active Listening — 10 points.
+   Evaluate: two-way conversation, pauses for input, responsiveness, confirmation of understanding, demo adjustment, and avoidance of monologue.
+   0-4 pts (Floor): SE dominates the call; little to no customer interaction; questions rarely invited or responded to meaningfully.
+   5-6 pts (Average): Some dialogue present; SE occasionally checks in but still primarily in presentation mode; adjustments are minimal.
+   7-8 pts (Strong): Regular two-way exchange; SE pauses for input, confirms understanding, and adjusts direction based on customer cues.
+   9-10 pts (Exceptional): Highly collaborative call; SE actively listens, reflects back customer input, adjusts the demo in real time, and ensures the customer feels heard throughout.
+
+7. Buyer-Centric Demo Language — 5 points.
+   Evaluate whether the SE uses "you", "your team", and "your users" language during workflows instead of "I/we" presenter-centric language.
+   Classify as one of: Predominantly You/Your, Mixed, Predominantly I/We, or Not Observed.
+   4-5 pts: Predominantly You/Your — the demo consistently frames actions and outcomes in terms of the customer's experience.
+   2-3 pts: Mixed — a blend of customer-centric and presenter-centric language; some good moments but inconsistent.
+   0-1 pts: Predominantly I/We — demo is presenter-led; language frames the SE or Simpro as the subject rather than the customer.
+   1 pt: Not Observed — no product demonstration language to evaluate.
+
+8. Communication and Executive Presence — 6 points.
+   Evaluate: clarity, structure, professionalism, confidence, concision, audience-appropriate depth, and jargon control. Do not double-count buyer-centric language here.
+   0-2 pts (Floor): Unclear, rambling, unprofessional, or heavily jargon-laden communication that reduces customer confidence.
+   3-4 pts (Average): Generally clear and professional; adequate structure; some jargon or pacing issues that slightly reduce impact.
+   5 pts (Strong): Clear, structured, and confident communication; well-calibrated to the audience; minimal jargon.
+   6 pts (Exceptional): Executive-level presence; precise, compelling, and authoritative communication that actively builds credibility.
+
+9. Objection, Concern, and Risk Handling — 7 points.
+   Evaluate: concern validation, clarification, proof points, follow-up commitments, and risk reduction. If no explicit objection appears, score whether the SE invited concerns or identified validation needs.
+   0-2 pts (Floor): Objections deflected, ignored, or handled defensively; no effort to invite or surface concerns.
+   3-4 pts (Average): Objections acknowledged; reasonable responses given but without strong evidence, validation, or structured handling.
+   5-6 pts (Strong): Objections handled with empathy and evidence; SE invites concerns proactively; follow-up commitments made where needed.
+   7 pts (Exceptional): Proactive concern identification; objections turned into value conversations; clear proof points and next-step commitments that reduce deal risk.
+
+10. Call Leadership, Collaboration, and Next Steps — 4 points.
+    Evaluate: agenda/objective support, AE/internal collaboration, transitions, open questions addressed, next steps defined with owners and timelines.
+    0-1 pts (Floor): No clear next steps; call ends without agreed outcomes or owners; collaboration with AE is absent or creates confusion.
+    2 pts (Average): Some structure present; next steps mentioned but vague; ownership or timeline is missing.
+    3 pts (Strong): Clear next steps with owners; good collaboration with AE; call ends with a shared understanding of what happens next.
+    4 pts (Exceptional): Crisp call leadership; SE drives agenda, collaborates seamlessly with AE, and closes the call with specific next steps, owners, timelines, and open-item tracking.
 
 Hard scoring caps, applied after the category total:
 - If the target SE cannot be identified, maximum score is 60.
@@ -911,7 +973,7 @@ Hard scoring caps, applied after the category total:
 - If the SE provides no meaningful contribution, maximum score is 40.
 
 Evidence requirements:
-For every category score, provide concise evidence from the transcript. Use speaker names and short quotes where possible. If evidence is missing, say "Not Observed." Do not treat absence of evidence as evidence of excellence. For Buyer-Centric Demo Language, include positive "you/your" examples and weaker "I/we" examples when observed.
+For every category score, provide concise evidence from the transcript. Use speaker names and short quotes where possible. If evidence is missing, say "Not Observed." Do not treat absence of evidence as evidence of excellence — if a behavior is Not Observed, award at most 40% of that category's maximum points. Missing behavior is a performance gap, not a neutral outcome. For Buyer-Centric Demo Language, include positive "you/your" examples and weaker "I/we" examples when observed.
 
 Scoring method:
 1. Identify the target SE or SEs.

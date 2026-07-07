@@ -223,6 +223,9 @@ export const AeCallScorecard: React.FC<AeCallScorecardProps> = ({ session, onBac
             <div>
               <p className="text-brand-yellow text-xs font-bold uppercase tracking-widest mb-1">AE Call Scorecard</p>
               <h1 className="text-2xl font-black text-white">{session.callDeliveredBy ?? 'Account Executive'}</h1>
+              {session.customerName && (
+                <p className="text-slate-300 text-xs mt-0.5">Customer: <span className="font-semibold">{session.customerName}</span></p>
+              )}
               <p className="text-slate-300 text-sm mt-1">{formatDate(session.createdAt)}</p>
             </div>
             <div className="text-right">

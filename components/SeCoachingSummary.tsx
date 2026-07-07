@@ -34,6 +34,9 @@ export const SeCoachingSummary: React.FC<SeCoachingSummaryProps> = ({
             <div>
               <p className="text-brand-yellow text-xs font-bold uppercase tracking-widest mb-1">SE Coaching Summary</p>
               <h1 className="text-2xl font-black text-white">{evaluation.target_se_name || 'Sales Engineer'}</h1>
+              {session.customerName && (
+                <p className="text-slate-300 text-xs mt-0.5">Customer: <span className="font-semibold">{session.customerName}</span></p>
+              )}
               <p className="text-slate-300 text-sm mt-1">{result.one_sentence_assessment}</p>
             </div>
             <div className="text-right">
