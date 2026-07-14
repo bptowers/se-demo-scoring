@@ -883,50 +883,50 @@ Scoring standard:
 - 40-59: Poor. Generic, reactive, unclear, weakly connected to customer needs, presenter-centric, or technically concerning.
 - 0-39: Unacceptable or insufficient evidence.
 
-Calibration standard: Most competent SEs should score in the 75-84 range (Acceptable/Passable). Scores of 85-94 require clearly demonstrated strength across multiple categories with specific transcript evidence. Scores of 95 or above require near-flawless performance and should be rare — a score above 90 means you could show this call to any customer as a benchmark example of excellent SE performance. When in doubt, score lower rather than higher. Err on the side of rigor.
+Calibration standard: Most competent SEs delivering a professional demo should score in the 70-80 range. Scores of 81-87 require demonstrated strength across multiple categories with specific transcript evidence. Scores above 87 require standout, benchmark-level performance and should be rare — reserved for calls you could use to train the team. When in doubt, score lower rather than higher, but do not penalise competent performance.
 
 Primary scoring rubric, total maximum 100 points:
 1. Customer Context and Discovery — 15 points.
    Evaluate: discovery, customer context, current/future state, stakeholders, constraints, success criteria, prior context use.
-   0-6 pts (Floor): No meaningful discovery; SE proceeds without establishing customer context, pain, or use case.
-   7-10 pts (Average): Some discovery questions asked; basic pain or use case surfaced but stakeholders, constraints, or success criteria are incomplete or missing.
-   11-13 pts (Strong): Clear customer context established; success criteria and key stakeholders identified; prior context leveraged where available.
-   14-15 pts (Exceptional): Comprehensive discovery covering current state, future state, stakeholders, constraints, success criteria, and explicit use of prior account knowledge.
+   0-5 pts (Floor): No meaningful discovery; SE proceeds without establishing customer context, pain, or use case.
+   6-9 pts (Average): Some discovery questions asked; basic pain or use case surfaced but stakeholders, constraints, or success criteria are incomplete or missing.
+   10-12 pts (Strong): Clear customer context established; success criteria and key stakeholders identified; prior context leveraged where available.
+   13-15 pts (Exceptional): Comprehensive discovery covering current state, future state, stakeholders, constraints, success criteria, and explicit use of prior account knowledge. Requires standout evidence.
 
 2. Demo Relevance and Storyline — 18 points.
    Evaluate: tailoring, coherence, outcome-driven narrative, use-case mapping, and avoidance of feature dumping.
-   0-7 pts (Floor): Generic canned demo with no visible customisation to this customer's context, industry, or use cases.
-   8-12 pts (Average): Some tailoring present; relevant features shown, but the demo still follows a product tour structure rather than a customer storyline.
-   13-15 pts (Strong): Demo is coherent and customer-relevant; clear narrative arc tied to customer use cases; most features grounded in customer outcomes.
-   16-18 pts (Exceptional): Fully customised, outcome-driven demo that tells a compelling story for this specific customer; zero feature dumping.
+   0-6 pts (Floor): Generic canned demo with no visible customisation to this customer's context, industry, or use cases.
+   7-10 pts (Average): Some tailoring present; relevant features shown, but the demo still follows a product tour structure rather than a customer storyline.
+   11-14 pts (Strong): Demo is coherent and customer-relevant; clear narrative arc tied to customer use cases; most features grounded in customer outcomes.
+   15-18 pts (Exceptional): Fully customised, outcome-driven demo that tells a compelling story for this specific customer; zero feature dumping. Requires standout evidence.
 
 3. Product and Technical Credibility — 15 points.
    Evaluate: accuracy, confidence, appropriate technical depth, integrations, implementation, security, data flow, governance, and honest handling of uncertainty.
-   0-6 pts (Floor): Significant technical errors, overconfident unsupported claims, or inability to answer reasonable product questions.
-   7-10 pts (Average): Generally accurate; handles common questions adequately but struggles with deeper technical or integration topics; some hedging without follow-up.
-   11-13 pts (Strong): Technically sound; handles integrations and implementation questions with confidence; acknowledges uncertainty appropriately and commits to follow-up.
-   14-15 pts (Exceptional): Deep, accurate technical knowledge demonstrated; proactively addresses complexity, security, or governance; earns clear technical trust.
+   0-5 pts (Floor): Significant technical errors, overconfident unsupported claims, or inability to answer reasonable product questions.
+   6-9 pts (Average): Generally accurate; handles common questions adequately but struggles with deeper technical or integration topics; some hedging without follow-up.
+   10-12 pts (Strong): Technically sound; handles integrations and implementation questions with confidence; acknowledges uncertainty appropriately and commits to follow-up.
+   13-15 pts (Exceptional): Deep, accurate technical knowledge demonstrated; proactively addresses complexity, security, or governance; earns clear technical trust. Requires standout evidence.
 
 4. Operational Fit and Adoption Readiness — 10 points.
    Evaluate: workflows, handoffs, systems, roles, data, governance, change management, implementation, and day-to-day use.
-   0-4 pts (Floor): No discussion of how the product fits into the customer's existing workflows, teams, or systems.
-   5-6 pts (Average): Some mention of operational fit but surface-level; missing change management, specific roles, or implementation realities.
-   7-8 pts (Strong): Addresses how the solution fits the customer's workflows and roles; touches on adoption or implementation considerations.
-   9-10 pts (Exceptional): Thorough operational picture painted; specific workflows, system integrations, roles, change management, and day-one adoption discussed with customer input.
+   0-3 pts (Floor): No discussion of how the product fits into the customer's existing workflows, teams, or systems.
+   4-5 pts (Average): Some mention of operational fit but surface-level; missing change management, specific roles, or implementation realities.
+   6-7 pts (Strong): Addresses how the solution fits the customer's workflows and roles; touches on adoption or implementation considerations.
+   8-10 pts (Exceptional): Thorough operational picture painted; specific workflows, system integrations, roles, change management, and day-one adoption discussed with customer input.
 
 5. Value and Business Impact — 10 points.
    Evaluate: translation of capability into customer-specific efficiency, risk, revenue, cost, productivity, compliance, customer experience, or strategic value.
-   0-4 pts (Floor): No business value discussed; demo is entirely feature- or functionality-focused.
-   5-6 pts (Average): General value statements made ("saves time", "improves efficiency") but not tied to this customer's specific metrics, goals, or context.
-   7-8 pts (Strong): Customer-specific value articulated in at least one area; connects product capability to a real business outcome for this customer.
-   9-10 pts (Exceptional): Multiple customer-specific value connections made with quantification or explicit tie-back to stated customer priorities; ROI or business case elements present.
+   0-3 pts (Floor): No business value discussed; demo is entirely feature- or functionality-focused.
+   4-5 pts (Average): General value statements made ("saves time", "improves efficiency") but not tied to this customer's specific metrics, goals, or context.
+   6-7 pts (Strong): Customer-specific value articulated in at least one area; connects product capability to a real business outcome for this customer.
+   8-10 pts (Exceptional): Multiple customer-specific value connections made with quantification or explicit tie-back to stated customer priorities; ROI or business case elements present.
 
 6. Customer Engagement and Active Listening — 10 points.
    Evaluate: two-way conversation, pauses for input, responsiveness, confirmation of understanding, demo adjustment, and avoidance of monologue.
-   0-4 pts (Floor): SE dominates the call; little to no customer interaction; questions rarely invited or responded to meaningfully.
-   5-6 pts (Average): Some dialogue present; SE occasionally checks in but still primarily in presentation mode; adjustments are minimal.
-   7-8 pts (Strong): Regular two-way exchange; SE pauses for input, confirms understanding, and adjusts direction based on customer cues.
-   9-10 pts (Exceptional): Highly collaborative call; SE actively listens, reflects back customer input, adjusts the demo in real time, and ensures the customer feels heard throughout.
+   0-3 pts (Floor): SE dominates the call; little to no customer interaction; questions rarely invited or responded to meaningfully.
+   4-5 pts (Average): Some dialogue present; SE occasionally checks in but still primarily in presentation mode; adjustments are minimal.
+   6-7 pts (Strong): Regular two-way exchange; SE pauses for input, confirms understanding, and adjusts direction based on customer cues.
+   8-10 pts (Exceptional): Highly collaborative call; SE actively listens, reflects back customer input, adjusts the demo in real time, and ensures the customer feels heard throughout.
 
 7. Buyer-Centric Demo Language — 5 points.
    Evaluate whether the SE uses "you", "your team", and "your users" language during workflows instead of "I/we" presenter-centric language.
@@ -981,6 +981,7 @@ Scoring method:
 3. Identify the likely customer objective.
 4. Score each rubric category independently.
 5. Sum category scores for the base score.
+5a. Recalibration check: If your total exceeds 82, review any category where you awarded Exceptional-tier points. For each, confirm there is a specific named moment in the transcript supporting that rating — not an inference. If the evidence is thin, step down to Strong tier for that category. A total above 87 must be supported by multiple clearly Exceptional moments across different categories.
 6. Apply hard caps.
 7. Determine pass/fail using 75 as the threshold.
 8. Provide coaching guidance based on the largest performance gaps.
