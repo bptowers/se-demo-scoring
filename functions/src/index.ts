@@ -906,6 +906,7 @@ Primary scoring rubric, total maximum 100 points:
    6-9 pts (Average): Generally accurate; handles common questions adequately but struggles with deeper technical or integration topics; some hedging without follow-up.
    10-12 pts (Strong): Technically sound; handles integrations and implementation questions with confidence; acknowledges uncertainty appropriately and commits to follow-up.
    13-15 pts (Exceptional): Deep, accurate technical knowledge demonstrated; proactively addresses complexity, security, or governance; earns clear technical trust. Requires standout evidence.
+   Scoring note: If the SE defers more than twice on product knowledge questions in a ~60-minute call (e.g. "I'll check and get back to you", "I'm not sure about that", "I'll need to confirm"), score this category in the Average tier (6-9 pts) regardless of other strengths. One or two honest deferrals are fine; a recurring pattern signals insufficient product depth. Scale proportionally for shorter or longer calls.
 
 4. Operational Fit and Adoption Readiness — 10 points.
    Evaluate: workflows, handoffs, systems, roles, data, governance, change management, implementation, and day-to-day use.
@@ -920,6 +921,7 @@ Primary scoring rubric, total maximum 100 points:
    4-5 pts (Average): General value statements made ("saves time", "improves efficiency") but not tied to this customer's specific metrics, goals, or context.
    6-7 pts (Strong): Customer-specific value articulated in at least one area; connects product capability to a real business outcome for this customer.
    8-10 pts (Exceptional): Multiple customer-specific value connections made with quantification or explicit tie-back to stated customer priorities; ROI or business case elements present.
+   Scoring note: If the SE never connects product features to customer-specific ROI, measurable outcomes, or named business priorities — i.e. value framing is entirely absent or only generic — score this category in the Average tier (4-5 pts) regardless of other positive signals.
 
 6. Customer Engagement and Active Listening — 10 points.
    Evaluate: two-way conversation, pauses for input, responsiveness, confirmation of understanding, demo adjustment, and avoidance of monologue.
@@ -956,15 +958,9 @@ Primary scoring rubric, total maximum 100 points:
     2 pts (Average): Some structure present; next steps mentioned but vague; ownership or timeline is missing.
     3 pts (Strong): Clear next steps with owners; good collaboration with AE; call ends with a shared understanding of what happens next.
     4 pts (Exceptional): Crisp call leadership; SE drives agenda, collaborates seamlessly with AE, and closes the call with specific next steps, owners, timelines, and open-item tracking.
-
-Category scoring constraints (applied when scoring individual categories, before summing):
-These constrain the points awarded within a specific category only — they do not affect the total score directly.
-- CATEGORY CONSTRAINT — Product and Technical Credibility: If the SE defers more than twice on product knowledge questions in a call of approximately 60 minutes (e.g. "I'll check and get back to you", "I'm not sure about that", "I'll need to confirm"), award no more than 8 out of 15 points for this category. Scale proportionally for shorter or longer calls. One or two honest deferrals are acceptable; a pattern indicates insufficient product depth.
-- CATEGORY CONSTRAINT — Value and Business Impact: If the SE never connects demonstrated product features to customer-specific ROI, business value, or measurable outcome — i.e. value framing is entirely absent or only generic ("saves time", "improves efficiency") — award no more than 5 out of 10 points for this category.
-- CATEGORY CONSTRAINT — Call Leadership, Collaboration, and Next Steps: If the AE or manager was solely responsible for all deal advancement, including ROI framing, closing language, and defining next steps, with no meaningful contribution from the SE, award no more than 2 out of 4 points for this category.
+    Scoring note: If the AE or manager was solely responsible for all deal advancement — ROI framing, closing language, defining next steps — with no meaningful contribution from the SE, score this category in the Average tier (2 pts) regardless of how well the SE otherwise supported the call.
 
 Hard scoring caps, applied to the total score after all category scores are summed:
-These cap the final_score integer — not any individual category.
 - If the target SE cannot be identified, maximum score is 60.
 - If the transcript is too short, heavily redacted, or too poor to evaluate, maximum score is 50 unless metadata clearly explains the limitation.
 - If the SE gives a mostly generic feature tour with little customer-specific relevance, maximum score is 74.
@@ -986,8 +982,8 @@ Scoring method:
 1. Identify the target SE or SEs.
 2. Identify the apparent call type.
 3. Identify the likely customer objective.
-4. Score each rubric category independently. Apply any applicable Category scoring constraints to cap individual category scores before moving on.
-5. Sum the (possibly constrained) category scores for the base score.
+4. Score each rubric category independently, applying any Scoring notes embedded in the category description.
+5. Sum category scores for the base score.
 5a. Recalibration check: If your total exceeds 82, review any category where you awarded Exceptional-tier points. For each, confirm there is a specific named moment in the transcript supporting that rating — not an inference. If the evidence is thin, step down to Strong tier for that category. A total above 87 must be supported by multiple clearly Exceptional moments across different categories.
 6. Apply hard caps.
 7. Determine pass/fail using 75 as the threshold.
