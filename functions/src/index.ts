@@ -957,7 +957,14 @@ Primary scoring rubric, total maximum 100 points:
     3 pts (Strong): Clear next steps with owners; good collaboration with AE; call ends with a shared understanding of what happens next.
     4 pts (Exceptional): Crisp call leadership; SE drives agenda, collaborates seamlessly with AE, and closes the call with specific next steps, owners, timelines, and open-item tracking.
 
-Hard scoring caps, applied after the category total:
+Category scoring constraints (applied when scoring individual categories, before summing):
+These constrain the points awarded within a specific category only — they do not affect the total score directly.
+- CATEGORY CONSTRAINT — Product and Technical Credibility: If the SE defers more than twice on product knowledge questions in a call of approximately 60 minutes (e.g. "I'll check and get back to you", "I'm not sure about that", "I'll need to confirm"), award no more than 8 out of 15 points for this category. Scale proportionally for shorter or longer calls. One or two honest deferrals are acceptable; a pattern indicates insufficient product depth.
+- CATEGORY CONSTRAINT — Value and Business Impact: If the SE never connects demonstrated product features to customer-specific ROI, business value, or measurable outcome — i.e. value framing is entirely absent or only generic ("saves time", "improves efficiency") — award no more than 5 out of 10 points for this category.
+- CATEGORY CONSTRAINT — Call Leadership, Collaboration, and Next Steps: If the AE or manager was solely responsible for all deal advancement, including ROI framing, closing language, and defining next steps, with no meaningful contribution from the SE, award no more than 2 out of 4 points for this category.
+
+Hard scoring caps, applied to the total score after all category scores are summed:
+These cap the final_score integer — not any individual category.
 - If the target SE cannot be identified, maximum score is 60.
 - If the transcript is too short, heavily redacted, or too poor to evaluate, maximum score is 50 unless metadata clearly explains the limitation.
 - If the SE gives a mostly generic feature tour with little customer-specific relevance, maximum score is 74.
@@ -971,9 +978,6 @@ Hard scoring caps, applied after the category total:
 - If the SE is dismissive, condescending, argumentative, or unprofessional toward the customer, maximum score is 60.
 - If the SE exposes confidential information, mishandles sensitive data, or creates a serious trust issue, maximum score is 55.
 - If the SE provides no meaningful contribution, maximum score is 40.
-- If the SE never connects demonstrated product features to customer-specific ROI, business value, or measurable outcome (i.e. value framing is entirely absent or only generic), the Value and Business Impact category cannot exceed 5 out of 10, regardless of other positive signals.
-- If the AE or manager was solely responsible for all deal advancement — including ROI framing, closing language, and next steps — with no meaningful contribution from the SE, the Call Leadership, Collaboration, and Next Steps category cannot exceed 2 out of 4.
-- If the SE defers more than twice on product knowledge questions in a call of approximately 60 minutes (e.g. "I'll check and get back to you", "I'm not sure about that", "I'll need to confirm") — indicating insufficient product depth rather than genuine uncertainty — the Product and Technical Credibility category cannot exceed 8 out of 15. Scale proportionally for shorter or longer calls.
 
 Evidence requirements:
 For every category score, provide concise evidence from the transcript. Use speaker names and short quotes where possible. If evidence is missing, say "Not Observed." Do not treat absence of evidence as evidence of excellence — if a behavior is Not Observed, award at most 40% of that category's maximum points. Missing behavior is a performance gap, not a neutral outcome. For Buyer-Centric Demo Language, include positive "you/your" examples and weaker "I/we" examples when observed.
@@ -982,8 +986,8 @@ Scoring method:
 1. Identify the target SE or SEs.
 2. Identify the apparent call type.
 3. Identify the likely customer objective.
-4. Score each rubric category independently.
-5. Sum category scores for the base score.
+4. Score each rubric category independently. Apply any applicable Category scoring constraints to cap individual category scores before moving on.
+5. Sum the (possibly constrained) category scores for the base score.
 5a. Recalibration check: If your total exceeds 82, review any category where you awarded Exceptional-tier points. For each, confirm there is a specific named moment in the transcript supporting that rating — not an inference. If the evidence is thin, step down to Strong tier for that category. A total above 87 must be supported by multiple clearly Exceptional moments across different categories.
 6. Apply hard caps.
 7. Determine pass/fail using 75 as the threshold.
