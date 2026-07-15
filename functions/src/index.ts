@@ -971,6 +971,9 @@ Hard scoring caps, applied after the category total:
 - If the SE is dismissive, condescending, argumentative, or unprofessional toward the customer, maximum score is 60.
 - If the SE exposes confidential information, mishandles sensitive data, or creates a serious trust issue, maximum score is 55.
 - If the SE provides no meaningful contribution, maximum score is 40.
+- If the SE never connects demonstrated product features to customer-specific ROI, business value, or measurable outcome (i.e. value framing is entirely absent or only generic), the Value and Business Impact category cannot exceed 5 out of 10, regardless of other positive signals.
+- If the AE or manager was solely responsible for all deal advancement — including ROI framing, closing language, and next steps — with no meaningful contribution from the SE, the Call Leadership, Collaboration, and Next Steps category cannot exceed 2 out of 4.
+- If the SE defers more than twice on product knowledge questions in a call of approximately 60 minutes (e.g. "I'll check and get back to you", "I'm not sure about that", "I'll need to confirm") — indicating insufficient product depth rather than genuine uncertainty — the Product and Technical Credibility category cannot exceed 8 out of 15. Scale proportionally for shorter or longer calls.
 
 Evidence requirements:
 For every category score, provide concise evidence from the transcript. Use speaker names and short quotes where possible. If evidence is missing, say "Not Observed." Do not treat absence of evidence as evidence of excellence — if a behavior is Not Observed, award at most 40% of that category's maximum points. Missing behavior is a performance gap, not a neutral outcome. For Buyer-Centric Demo Language, include positive "you/your" examples and weaker "I/we" examples when observed.
