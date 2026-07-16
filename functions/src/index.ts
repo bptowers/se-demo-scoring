@@ -952,13 +952,12 @@ Primary scoring rubric, total maximum 100 points:
    5-6 pts (Strong): Objections handled with empathy and evidence; SE invites concerns proactively; follow-up commitments made where needed.
    7 pts (Exceptional): Proactive concern identification; objections turned into value conversations; clear proof points and next-step commitments that reduce deal risk.
 
-10. Call Leadership, Collaboration, and Next Steps — 4 points.
-    Evaluate: agenda/objective support, AE/internal collaboration, transitions, open questions addressed, next steps defined with owners and timelines.
-    0-1 pts (Floor): No clear next steps; call ends without agreed outcomes or owners; collaboration with AE is absent or creates confusion.
-    2 pts (Average): Some structure present; next steps mentioned but vague; ownership or timeline is missing.
-    3 pts (Strong): Clear next steps with owners; good collaboration with AE; call ends with a shared understanding of what happens next.
-    4 pts (Exceptional): Crisp call leadership; SE drives agenda, collaborates seamlessly with AE, and closes the call with specific next steps, owners, timelines, and open-item tracking.
-    Scoring note: If the AE or manager was solely responsible for all deal advancement — ROI framing, closing language, defining next steps — with no meaningful contribution from the SE, score this category in the Average tier (2 pts) regardless of how well the SE otherwise supported the call.
+10. Call Support, Collaboration, and Technical Follow-through — 4 points.
+    Evaluate: how well the SE supports the AE's call structure, manages technical transitions (discovery → demo → Q&A), collaborates with the AE without creating confusion, and ensures open technical questions have a clear owner and path to resolution. Commercial next steps (scheduling follow-up calls, pricing, closing) are the AE's responsibility and should not be attributed to or expected of the SE.
+    0-1 pts (Floor): SE creates confusion or friction during the call; undermines the AE's structure; technical transitions are disjointed; open technical questions are left completely unaddressed.
+    2 pts (Average): SE participates adequately; transitions are functional but not smooth; some technical follow-up items noted but ownership is unclear.
+    3 pts (Strong): SE actively supports the AE's flow; manages technical transitions cleanly; technical follow-up items are clearly captured and owned by the SE.
+    4 pts (Exceptional): SE noticeably enhances the call — seamless collaboration with the AE, crisp technical transitions, all open technical questions captured with explicit owners and resolution paths.
 
 Hard scoring caps, applied to the total score after all category scores are summed:
 - If the target SE cannot be identified, maximum score is 60.
