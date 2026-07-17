@@ -322,6 +322,130 @@ const AeCriterionRadar: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) =
   );
 };
 
+// ─── Category Heatmap ─────────────────────────────────────────────────────────
+
+const SE_CATEGORY_SHORT: Record<string, string> = {
+  'Customer Context and Discovery':                         'Discovery',
+  'Demo Relevance and Storyline':                          'Demo Rel.',
+  'Demo Relevance and Value Connection':                   'Demo Rel.',
+  'Product and Technical Credibility':                     'Tech Cred.',
+  'Operational Fit and Adoption Readiness':                'Ops Fit',
+  'Value and Business Impact':                             'Value',
+  'Customer Engagement and Active Listening':              'Engagement',
+  'Buyer-Centric Demo Language':                           'Buyer Lang.',
+  'Communication and Executive Presence':                  'Presence',
+  'Objection, Concern, and Risk Handling':                 'Objections',
+  'Call Support, Collaboration, and Technical Follow-through': 'Collaboration',
+  'Call Leadership, Collaboration, and Next Steps':        'Collaboration',
+};
+
+const CANONICAL_CATEGORY_ORDER = [
+  'Customer Context and Discovery',
+  'Demo Relevance and Value Connection',
+  'Demo Relevance and Storyline',
+  'Product and Technical Credibility',
+  'Operational Fit and Adoption Readiness',
+  'Value and Business Impact',
+  'Customer Engagement and Active Listening',
+  'Buyer-Centric Demo Language',
+  'Communication and Executive Presence',
+  'Objection, Concern, and Risk Handling',
+  'Call Support, Collaboration, and Technical Follow-through',
+  'Call Leadership, Collaboration, and Next Steps',
+];
+
+const getCellBg = (pct: number | null): string => {
+  if (pct === null) return '#f8fafc';
+  if (pct >= 85) return '#22c55e';
+  if (pct >= 75) return '#ffc20e';
+  if (pct >= 60) return '#f59e0b';
+  return '#ef4444';
+};
+
+const getCellTextColor = (pct: number | null): string => {
+  if (pct === null) return '#cbd5e1';
+  if (pct >= 75 && pct < 85) return '#1e3a5f';
+  return '#ffffff';
+};
+
+const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> = ({ sessions, aeNames }) => {
+  const seSessions = sessions.filter(s => !!s.seScoring?.evaluations?.[0]?.category_scores?.length);
+  if (seSessions.length === 0 || aeNames.length < 2) return null;
+
+  // Collect categories present in data, preserving canonical order
+  const seenCats = new Set<string>();
+  for (const s of seSessions) {
+    for (const c of s.seScoring!.evaluations[0].category_scores) seenCats.add(c.category);
+  }
+  const categories = CANONICAL_CATEGORY_ORDER.filter(c => seenCats.has(c));
+
+  // Avg % per SE per category
+  const cellData: Record<string, Record<string, number | null>> = {};
+  for (const name of aeNames) {
+    cellData[name] = {};
+    const forSe = seSessions.filter(s => s.callDeliveredBy === name);
+    for (const cat of categories) {
+      const rows = forSe.flatMap(s =>
+        s.seScoring!.evaluations[0].category_scores.filter(c => c.category === cat)
+      );
+      cellData[name][cat] = rows.length > 0
+        ? Math.round(rows.reduce((sum, r) => sum + (r.max_points > 0 ? r.points_awarded / r.max_points : 0), 0) / rows.length * 100)
+        : null;
+    }
+  }
+
+  const visibleNames = aeNames.filter(n => Object.values(cellData[n]).some(v => v !== null));
+  if (visibleNames.length < 2 || categories.length === 0) return null;
+
+  return (
+    <div className="overflow-x-auto">
+      <table className="border-collapse text-xs" style={{ minWidth: `${140 + categories.length * 72}px` }}>
+        <thead>
+          <tr>
+            <th className="align-bottom pb-2 pr-3 text-left" style={{ width: 140 }} />
+            {categories.map(cat => (
+              <th key={cat} className="align-bottom pb-2 px-1 text-center" style={{ width: 72 }}>
+                <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', height: 76, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', fontSize: 10, fontWeight: 600, color: '#64748b', lineHeight: 1.2 }}>
+                  {SE_CATEGORY_SHORT[cat] ?? cat}
+                </div>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {visibleNames.map(name => (
+            <tr key={name} className="border-t border-slate-100">
+              <td className="py-1.5 pr-3 font-semibold text-slate-700 text-xs truncate" style={{ maxWidth: 140 }}>{name}</td>
+              {categories.map(cat => {
+                const pct = cellData[name][cat];
+                return (
+                  <td key={cat} className="py-1.5 px-1 text-center">
+                    <div
+                      title={pct !== null ? `${name} · ${SE_CATEGORY_SHORT[cat] ?? cat}: ${pct}%` : 'No data'}
+                      className="rounded-md mx-auto flex items-center justify-center font-bold"
+                      style={{ backgroundColor: getCellBg(pct), color: getCellTextColor(pct), width: 50, height: 26, fontSize: 11 }}
+                    >
+                      {pct !== null ? `${pct}%` : '—'}
+                    </div>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="flex items-center gap-5 mt-3 text-xs text-slate-400">
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block bg-green-500" /> ≥85%</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#ffc20e' }} /> 75–84%</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block bg-amber-500" /> 60–74%</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block bg-red-500" /> &lt;60%</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block bg-slate-100" /> No data</span>
+      </div>
+    </div>
+  );
+};
+
 // ─── Call History Table ───────────────────────────────────────────────────────
 
 const CallHistoryTable: React.FC<{
@@ -638,6 +762,17 @@ export const AeDashboard: React.FC = () => {
           </div>
           <p className="text-xs text-gray-400 mb-4">Sorted by average · dots show most recent call · green line = pass threshold</p>
           <SeComparisonChart sessions={sessions} aeNames={aeNames} />
+        </div>
+      )}
+
+      {/* Category Heatmap — managers viewing all SEs */}
+      {isManager && selectedAe === 'all' && aeNames.length > 1 && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-base font-bold text-brand-navy">Team Category Heatmap</h2>
+          </div>
+          <p className="text-xs text-gray-400 mb-5">Avg % of max per category · hover a cell for details</p>
+          <CategoryHeatmap sessions={sessions} aeNames={aeNames} />
         </div>
       )}
 
