@@ -893,12 +893,13 @@ Primary scoring rubric, total maximum 100 points:
    10-12 pts (Strong): Clear customer context established; success criteria and key stakeholders identified; prior context leveraged where available.
    13-15 pts (Exceptional): Comprehensive discovery covering current state, future state, stakeholders, constraints, success criteria, and explicit use of prior account knowledge. Requires standout evidence.
 
-2. Demo Relevance and Storyline — 18 points.
-   Evaluate: tailoring, coherence, outcome-driven narrative, use-case mapping, and avoidance of feature dumping.
-   0-6 pts (Floor): Generic canned demo with no visible customisation to this customer's context, industry, or use cases.
-   7-10 pts (Average): Some tailoring present; relevant features shown, but the demo still follows a product tour structure rather than a customer storyline.
-   11-14 pts (Strong): Demo is coherent and customer-relevant; clear narrative arc tied to customer use cases; most features grounded in customer outcomes.
-   15-18 pts (Exceptional): Fully customised, outcome-driven demo that tells a compelling story for this specific customer; zero feature dumping. Requires standout evidence.
+2. Demo Relevance and Value Connection — 18 points.
+   Evaluate: whether the SE's technical demonstration is tailored to this customer's specific workflows, systems, and business context; whether demonstrated features are explicitly connected to customer-specific outcomes (efficiency gained, risk reduced, revenue enabled, workflow improved); and whether the SE avoids generic feature-function demonstrations.
+   Note: the overall business narrative and demo agenda are typically set by the AE. Evaluate the SE on the quality and relevance of their technical execution within that context — not on narrative ownership or agenda structure.
+   0-6 pts (Floor): Generic canned demonstration with no visible tailoring; features shown bear no clear connection to this customer's workflows, systems, or stated needs.
+   7-10 pts (Average): Some tailoring present; the SE shows relevant features but does not connect them to this customer's specific workflows or outcomes — still primarily feature-functional in delivery.
+   11-14 pts (Strong): The SE's technical demonstration is clearly tailored to this customer; demonstrated features are explicitly connected to this customer's workflows and business outcomes; minimal feature dumping.
+   15-18 pts (Exceptional): Every demonstrated capability is connected to a specific customer workflow or measurable outcome; the SE consistently frames technical features in terms of value for this customer. Requires standout transcript evidence.
 
 3. Product and Technical Credibility — 15 points.
    Evaluate: accuracy, confidence, appropriate technical depth, integrations, implementation, security, data flow, governance, and honest handling of uncertainty.
@@ -981,6 +982,7 @@ Scoring method:
 1. Identify the target SE or SEs.
 2. Identify the apparent call type.
 3. Identify the likely customer objective.
+3a. Identify the division of responsibility: note which aspects of the call the SE led versus the AE — including who set the business narrative, who managed the agenda, who led the demo, and who drove commercial next steps. The SE is evaluated only on the portions they owned or contributed to. Do not penalise the SE for call elements the AE led.
 4. Score each rubric category independently, applying any Scoring notes embedded in the category description.
 5. Sum category scores for the base score.
 5a. Recalibration check: If your total exceeds 82, review any category where you awarded Exceptional-tier points. For each, confirm there is a specific named moment in the transcript supporting that rating — not an inference. If the evidence is thin, step down to Strong tier for that category. A total above 87 must be supported by multiple clearly Exceptional moments across different categories.
@@ -994,7 +996,7 @@ Return valid JSON only. Do not include markdown. Do not include commentary outsi
 
 const SE_CATEGORY_DEFINITIONS = [
   { category: "Customer Context and Discovery", max_points: 15 },
-  { category: "Demo Relevance and Storyline", max_points: 18 },
+  { category: "Demo Relevance and Value Connection", max_points: 18 },
   { category: "Product and Technical Credibility", max_points: 15 },
   { category: "Operational Fit and Adoption Readiness", max_points: 10 },
   { category: "Value and Business Impact", max_points: 10 },
