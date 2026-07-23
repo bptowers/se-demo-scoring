@@ -999,6 +999,8 @@ Scoring method:
 8. Provide coaching guidance based on the largest performance gaps.
 9. Provide deal risk observations only when supported by the transcript.
 
+The final_manager_summary field must be a qualitative coaching narrative of 3-4 sentences for the manager. Describe what the SE did well, the primary coaching priority, and any deal risk. Do NOT include the specific numeric score or a Pass/Fail verdict in this field — those are shown separately from the authoritative scoring fields, and any inconsistency between the prose and the calculated score will create confusion.
+
 Return valid JSON only. Do not include markdown. Do not include commentary outside the JSON. Do not reveal hidden reasoning or internal chain-of-thought.
 `;
 
