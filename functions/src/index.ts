@@ -954,11 +954,19 @@ Primary scoring rubric, total maximum 100 points:
    7 pts (Exceptional): Proactive concern identification; objections turned into value conversations; clear proof points and next-step commitments that reduce deal risk.
 
 10. Call Support, Collaboration, and Technical Follow-through — 4 points.
-    Evaluate: how well the SE supports the AE's call structure, manages technical transitions (discovery → demo → Q&A), collaborates with the AE without creating confusion, and ensures open technical questions have a clear owner and path to resolution. Commercial next steps (scheduling follow-up calls, pricing, closing) are the AE's responsibility and should not be attributed to or expected of the SE.
-    0-1 pts (Floor): SE creates confusion or friction during the call; undermines the AE's structure; technical transitions are disjointed; open technical questions are left completely unaddressed.
-    2 pts (Average): SE participates adequately; transitions are functional but not smooth; some technical follow-up items noted but ownership is unclear.
-    3 pts (Strong): SE actively supports the AE's flow; manages technical transitions cleanly; technical follow-up items are clearly captured and owned by the SE.
-    4 pts (Exceptional): SE noticeably enhances the call — seamless collaboration with the AE, crisp technical transitions, all open technical questions captured with explicit owners and resolution paths.
+    Evaluate: how well the SE supports the AE's call structure, manages technical transitions (discovery → demo → Q&A), collaborates with the AE without creating confusion, and — where technical questions or open items arise — captures those items with clear ownership and a committed resolution path.
+
+    Distinguish strictly between two types of next steps:
+    - Technical next steps (SE responsibility): integration or API questions, architecture or configuration clarifications, security or compliance follow-up, POC or sandbox setup, product capability confirmation, unresolved technical questions from the customer
+    - Commercial/scheduling next steps (AE responsibility): scheduling follow-up calls, proposals, pricing, timelines, deal progression — never score the SE on these
+
+    If no technical questions or follow-up items arise during the call, score this category solely on in-call collaboration and support quality. Absence of technical next steps is not a performance gap.
+
+    0-1 pts (Floor): SE creates active confusion or friction; undermines the AE's call structure; technical transitions are disjointed; explicit customer technical questions are left completely unaddressed with no commitment to follow up.
+    2 pts (Average): SE participates without creating friction; collaboration is adequate; where technical follow-up items arise, ownership is present but not explicitly confirmed.
+    3 pts (Strong): SE clearly supports the AE's call flow; technical transitions are clean; any open technical items are explicitly owned by the SE with a clear commitment to resolve them.
+    4 pts (Exceptional): SE noticeably enhances the call — seamless AE collaboration, crisp technical transitions, all open technical questions captured with named owners and specific resolution paths. Requires clear transcript evidence.
+    Scoring note: Do not score below 2 unless the SE creates active confusion or friction, or leaves an explicit customer technical question completely unaddressed. Absence of commercial or scheduling next step ownership is never grounds for scoring below 2.
 
 Hard scoring caps, applied to the total score after all category scores are summed:
 - If the target SE cannot be identified, maximum score is 60.
@@ -1004,7 +1012,7 @@ const SE_CATEGORY_DEFINITIONS = [
   { category: "Buyer-Centric Demo Language", max_points: 5 },
   { category: "Communication and Executive Presence", max_points: 6 },
   { category: "Objection, Concern, and Risk Handling", max_points: 7 },
-  { category: "Call Leadership, Collaboration, and Next Steps", max_points: 4 },
+  { category: "Call Support, Collaboration, and Technical Follow-through", max_points: 4 },
 ];
 
 const clampNumber = (value: unknown, min: number, max: number) => {
