@@ -325,24 +325,29 @@ const AeCriterionRadar: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) =
 // ─── Category Heatmap ─────────────────────────────────────────────────────────
 
 const SE_CATEGORY_SHORT: Record<string, string> = {
-  'Customer Context and Discovery':                         'Discovery',
-  'Demo Relevance and Storyline':                          'Demo Rel.',
-  'Demo Relevance and Value Connection':                   'Demo Rel.',
-  'Product and Technical Credibility':                     'Tech Cred.',
-  'Operational Fit and Adoption Readiness':                'Ops Fit',
-  'Value and Business Impact':                             'Value',
-  'Customer Engagement and Active Listening':              'Engagement',
-  'Buyer-Centric Demo Language':                           'Buyer Lang.',
-  'Communication and Executive Presence':                  'Presence',
-  'Objection, Concern, and Risk Handling':                 'Objections',
-  'Call Support, Collaboration, and Technical Follow-through': 'Collaboration',
-  'Call Leadership, Collaboration, and Next Steps':        'Collaboration',
+  'Customer Context and Discovery':                            'Discovery',
+  'Demo Relevance and Storyline':                             'Demo Relevance',
+  'Demo Relevance and Value Connection':                      'Demo Relevance',
+  'Product and Technical Credibility':                        'Tech Credibility',
+  'Operational Fit and Adoption Readiness':                   'Ops Fit',
+  'Value and Business Impact':                                'Value & Impact',
+  'Customer Engagement and Active Listening':                 'Engagement',
+  'Buyer-Centric Demo Language':                              'Buyer Language',
+  'Communication and Executive Presence':                     'Exec. Presence',
+  'Objection, Concern, and Risk Handling':                    'Objections',
+  'Call Support, Collaboration, and Technical Follow-through':'Collaboration',
+  'Call Leadership, Collaboration, and Next Steps':           'Collaboration',
+};
+
+// Old category names that map to their current equivalents
+const CATEGORY_ALIASES: Record<string, string> = {
+  'Demo Relevance and Storyline':                   'Demo Relevance and Value Connection',
+  'Call Leadership, Collaboration, and Next Steps': 'Call Support, Collaboration, and Technical Follow-through',
 };
 
 const CANONICAL_CATEGORY_ORDER = [
   'Customer Context and Discovery',
   'Demo Relevance and Value Connection',
-  'Demo Relevance and Storyline',
   'Product and Technical Credibility',
   'Operational Fit and Adoption Readiness',
   'Value and Business Impact',
@@ -351,42 +356,53 @@ const CANONICAL_CATEGORY_ORDER = [
   'Communication and Executive Presence',
   'Objection, Concern, and Risk Handling',
   'Call Support, Collaboration, and Technical Follow-through',
-  'Call Leadership, Collaboration, and Next Steps',
 ];
+
+const HEATMAP_CELL_W = 58;
+const HEATMAP_NAME_W = 130;
 
 const getCellBg = (pct: number | null): string => {
   if (pct === null) return '#f8fafc';
-  if (pct >= 85) return '#22c55e';
-  if (pct >= 75) return '#ffc20e';
-  if (pct >= 60) return '#f59e0b';
-  return '#ef4444';
+  if (pct >= 85) return '#dcfce7';
+  if (pct >= 75) return '#fef9c3';
+  if (pct >= 60) return '#fed7aa';
+  return '#fecaca';
 };
 
 const getCellTextColor = (pct: number | null): string => {
-  if (pct === null) return '#cbd5e1';
-  if (pct >= 75 && pct < 85) return '#1e3a5f';
-  return '#ffffff';
+  if (pct === null) return '#94a3b8';
+  if (pct >= 85) return '#14532d';
+  if (pct >= 75) return '#713f12';
+  if (pct >= 60) return '#7c2d12';
+  return '#7f1d1d';
 };
 
 const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> = ({ sessions, aeNames }) => {
   const seSessions = sessions.filter(s => !!s.seScoring?.evaluations?.[0]?.category_scores?.length);
   if (seSessions.length === 0 || aeNames.length < 2) return null;
 
-  // Collect categories present in data, preserving canonical order
+  // Normalise old category names to their current equivalents before collecting
   const seenCats = new Set<string>();
   for (const s of seSessions) {
-    for (const c of s.seScoring!.evaluations[0].category_scores) seenCats.add(c.category);
+    for (const c of s.seScoring!.evaluations[0].category_scores) {
+      seenCats.add(CATEGORY_ALIASES[c.category] ?? c.category);
+    }
   }
   const categories = CANONICAL_CATEGORY_ORDER.filter(c => seenCats.has(c));
 
-  // Avg % per SE per category
   const cellData: Record<string, Record<string, number | null>> = {};
   for (const name of aeNames) {
     cellData[name] = {};
     const forSe = seSessions.filter(s => s.callDeliveredBy === name);
     for (const cat of categories) {
+      // Match both the canonical name and any alias that maps to it
+      const aliasNames = Object.entries(CATEGORY_ALIASES)
+        .filter(([, v]) => v === cat)
+        .map(([k]) => k);
       const rows = forSe.flatMap(s =>
-        s.seScoring!.evaluations[0].category_scores.filter(c => c.category === cat)
+        s.seScoring!.evaluations[0].category_scores.filter(
+          c => c.category === cat || aliasNames.includes(c.category)
+        )
       );
       cellData[name][cat] = rows.length > 0
         ? Math.round(rows.reduce((sum, r) => sum + (r.max_points > 0 ? r.points_awarded / r.max_points : 0), 0) / rows.length * 100)
@@ -397,33 +413,60 @@ const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> 
   const visibleNames = aeNames.filter(n => Object.values(cellData[n]).some(v => v !== null));
   if (visibleNames.length < 2 || categories.length === 0) return null;
 
+  const tableW = HEATMAP_NAME_W + categories.length * HEATMAP_CELL_W;
+
   return (
     <div className="overflow-x-auto">
-      <table className="border-collapse text-xs" style={{ minWidth: `${140 + categories.length * 72}px` }}>
+      <table style={{ tableLayout: 'fixed', borderCollapse: 'collapse', width: tableW, minWidth: tableW }}>
+        <colgroup>
+          <col style={{ width: HEATMAP_NAME_W }} />
+          {categories.map(cat => <col key={cat} style={{ width: HEATMAP_CELL_W }} />)}
+        </colgroup>
         <thead>
           <tr>
-            <th className="align-bottom pb-2 pr-3 text-left" style={{ width: 140 }} />
+            <th style={{ width: HEATMAP_NAME_W, height: 90 }} />
             {categories.map(cat => (
-              <th key={cat} className="align-bottom pb-2 px-1 text-center" style={{ width: 72 }}>
-                <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', height: 76, display: 'flex', alignItems: 'center', justifyContent: 'flex-start', fontSize: 10, fontWeight: 600, color: '#64748b', lineHeight: 1.2 }}>
+              <th key={cat} style={{ width: HEATMAP_CELL_W, height: 90, position: 'relative', overflow: 'visible', padding: 0 }}>
+                <span style={{
+                  position: 'absolute',
+                  bottom: 8,
+                  left: Math.round(HEATMAP_CELL_W / 2),
+                  transformOrigin: 'left bottom',
+                  transform: 'rotate(-45deg)',
+                  whiteSpace: 'nowrap',
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: '#64748b',
+                  lineHeight: 1,
+                }}>
                   {SE_CATEGORY_SHORT[cat] ?? cat}
-                </div>
+                </span>
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {visibleNames.map(name => (
-            <tr key={name} className="border-t border-slate-100">
-              <td className="py-1.5 pr-3 font-semibold text-slate-700 text-xs truncate" style={{ maxWidth: 140 }}>{name}</td>
+            <tr key={name} style={{ borderTop: '1px solid #f1f5f9' }}>
+              <td style={{ padding: '5px 10px 5px 0', fontSize: 12, fontWeight: 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {name}
+              </td>
               {categories.map(cat => {
                 const pct = cellData[name][cat];
                 return (
-                  <td key={cat} className="py-1.5 px-1 text-center">
+                  <td key={cat} style={{ padding: '5px 4px', textAlign: 'center' }}>
                     <div
                       title={pct !== null ? `${name} · ${SE_CATEGORY_SHORT[cat] ?? cat}: ${pct}%` : 'No data'}
-                      className="rounded-md mx-auto flex items-center justify-center font-bold"
-                      style={{ backgroundColor: getCellBg(pct), color: getCellTextColor(pct), width: 50, height: 26, fontSize: 11 }}
+                      style={{
+                        backgroundColor: getCellBg(pct),
+                        color: getCellTextColor(pct),
+                        borderRadius: 4,
+                        padding: '4px 2px',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        textAlign: 'center',
+                        letterSpacing: '-0.01em',
+                      }}
                     >
                       {pct !== null ? `${pct}%` : '—'}
                     </div>
@@ -435,12 +478,12 @@ const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> 
         </tbody>
       </table>
 
-      <div className="flex items-center gap-5 mt-3 text-xs text-slate-400">
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block bg-green-500" /> ≥85%</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#ffc20e' }} /> 75–84%</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block bg-amber-500" /> 60–74%</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block bg-red-500" /> &lt;60%</span>
-        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block bg-slate-100" /> No data</span>
+      <div className="flex items-center gap-5 mt-4 text-xs text-slate-400">
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#dcfce7', border: '1px solid #bbf7d0' }} /> ≥85%</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#fef9c3', border: '1px solid #fef08a' }} /> 75–84%</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#fed7aa', border: '1px solid #fdba74' }} /> 60–74%</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#fecaca', border: '1px solid #fca5a5' }} /> &lt;60%</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }} /> No data</span>
       </div>
     </div>
   );
