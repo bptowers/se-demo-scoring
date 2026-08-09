@@ -41,6 +41,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                  <Link to="/manager" className="hover:text-brand-yellow transition-colors">My Team</Link>
                )}
                <Link to="/se-dashboard" className="hover:text-brand-yellow transition-colors">SE Dashboard</Link>
+               <Link to="/ai-coach" className="hover:text-brand-yellow transition-colors">AI Coach</Link>
              </nav>
             <div className="h-6 w-px bg-slate-700 mx-2"></div>
             <div className="flex items-center gap-3">
@@ -93,7 +94,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
               <div className="flex gap-4 text-sm font-medium">
                 <a href="#" className="hover:text-brand-yellow transition-colors">View the SE Demo Scoring Guide</a>
                 <span className="text-slate-600">•</span>
-                <a href="#" className="hover:text-brand-yellow transition-colors">Ask SE Leadership</a>
+                <Link to="/ai-coach" className="hover:text-brand-yellow transition-colors">Practise with the AI Demo Coach</Link>
               </div>
             </div>
             <div className="flex gap-6 text-xs text-slate-500">

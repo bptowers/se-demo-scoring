@@ -8,6 +8,7 @@ import { ManagerDashboard } from './pages/ManagerDashboard';
 import { AeDashboard } from './pages/AeDashboard';
 import { CallHistory } from './pages/CallHistory';
 import { SeRubricGuide } from './pages/SeRubricGuide';
+import { AiDemoCoach } from './pages/AiDemoCoach';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { getManagerConfig } from './config/managerConfig';
 import { canViewSeRubric } from './config/rubricAccess';
@@ -128,6 +129,16 @@ const AppRoutes: React.FC = () => {
               <SeRubricGuide />
             </Layout>
           </RubricRoute>
+        }
+      />
+      <Route
+        path="/ai-coach"
+        element={
+          <ProtectedRoute>
+            <Layout>
+              <AiDemoCoach />
+            </Layout>
+          </ProtectedRoute>
         }
       />
     </Routes>
