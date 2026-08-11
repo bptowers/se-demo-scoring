@@ -306,7 +306,7 @@ export interface SeScorerProfile {
 
 export const SE_SCORING_RUBRIC: ScoringCriterion[] = [
   { id: 'se_customer_context_discovery', name: 'Customer Context and Discovery', section: 'Core SE Performance', maxPoints: 15, description: 'Understood, explored, and confirmed the customer situation before or during the demo.' },
-  { id: 'se_demo_relevance_storyline', name: 'Demo Relevance and Storyline', section: 'Core SE Performance', maxPoints: 18, description: 'Delivered a tailored, coherent demonstration mapped to customer use cases and outcomes.' },
+  { id: 'se_demo_relevance_storyline', name: 'Demo Relevance and Value Connection', section: 'Core SE Performance', maxPoints: 18, description: "Tailored the demonstration to the customer's workflows and systems, and connected each capability shown to a specific customer outcome rather than demonstrating features generically." },
   { id: 'se_product_technical_credibility', name: 'Product and Technical Credibility', section: 'Core SE Performance', maxPoints: 15, description: 'Explained product and technical behavior accurately, credibly, and at appropriate depth.' },
   { id: 'se_operational_fit_adoption', name: 'Operational Fit and Adoption Readiness', section: 'Business Fit', maxPoints: 10, description: 'Connected the solution to workflows, roles, systems, implementation, governance, and adoption reality.' },
   { id: 'se_value_business_impact', name: 'Value and Business Impact', section: 'Business Fit', maxPoints: 10, description: 'Translated capability into customer-specific commercial or operational value.' },
@@ -314,5 +314,5 @@ export const SE_SCORING_RUBRIC: ScoringCriterion[] = [
   { id: 'se_buyer_centric_language', name: 'Buyer-Centric Demo Language', section: 'Conversation Quality', maxPoints: 5, description: 'Used you/your language to help the customer imagine themselves operating the solution.' },
   { id: 'se_communication_presence', name: 'Communication and Executive Presence', section: 'Conversation Quality', maxPoints: 6, description: 'Communicated clearly, concisely, professionally, and credibly.' },
   { id: 'se_objection_risk_handling', name: 'Objection, Concern, and Risk Handling', section: 'Deal Advancement', maxPoints: 7, description: 'Handled concerns, validation needs, and risks directly and constructively.' },
-  { id: 'se_call_leadership_next_steps', name: 'Call Leadership, Collaboration, and Next Steps', section: 'Deal Advancement', maxPoints: 4, description: 'Helped move the call and opportunity forward with structure, collaboration, and next steps.' },
+  { id: 'se_call_leadership_next_steps', name: 'Call Support, Collaboration, and Technical Follow-through', section: 'Deal Advancement', maxPoints: 4, description: "Supported the AE's call structure, managed technical transitions cleanly, and owned any open technical items with a clear resolution path. Commercial and scheduling next steps are the AE's responsibility and are not scored here." },
 ];

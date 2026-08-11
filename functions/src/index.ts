@@ -922,7 +922,7 @@ Primary scoring rubric, total maximum 100 points:
    4-5 pts (Average): General value statements made ("saves time", "improves efficiency") but not tied to this customer's specific metrics, goals, or context.
    6-7 pts (Strong): Customer-specific value articulated in at least one area; connects product capability to a real business outcome for this customer.
    8-10 pts (Exceptional): Multiple customer-specific value connections made with quantification or explicit tie-back to stated customer priorities; ROI or business case elements present.
-   Scoring note: If the SE never connects product features to customer-specific ROI, measurable outcomes, or named business priorities — i.e. value framing is entirely absent or only generic — score this category in the Average tier (4-5 pts) regardless of other positive signals.
+   Scoring note: If the SE never connects product features to customer-specific ROI, measurable outcomes, or named business priorities, this category cannot exceed the Average tier (maximum 5 pts) regardless of other positive signals. Distinguish two cases within that: if value framing is entirely absent — no business outcome, benefit, or impact language at any point — score in the Floor tier (0-3 pts). If only generic value language is present ("saves time", "improves efficiency") with no tie to this customer's metrics, goals, or context, score 4-5 pts.
 
 6. Customer Engagement and Active Listening — 10 points.
    Evaluate: two-way conversation, pauses for input, responsiveness, confirmation of understanding, demo adjustment, and avoidance of monologue.

@@ -49,7 +49,7 @@ export const SAMPLE_SE_SESSION: DemoSession = {
             coaching_note: 'Before the demo, turn the customer concern into an explicit success criterion.',
           },
           {
-            category: 'Demo Relevance and Storyline',
+            category: 'Demo Relevance and Value Connection',
             max_points: 18,
             points_awarded: 15,
             rating: 'Strong',
@@ -130,7 +130,7 @@ export const SAMPLE_SE_SESSION: DemoSession = {
             coaching_note: 'Turn each open risk into a named validation action.',
           },
           {
-            category: 'Call Leadership, Collaboration, and Next Steps',
+            category: 'Call Support, Collaboration, and Technical Follow-through',
             max_points: 4,
             points_awarded: 4,
             rating: 'Exceptional',

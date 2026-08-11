@@ -12,7 +12,7 @@ import { SeCategoryScore } from '../types';
 
 const CATEGORY_LABELS: Record<string, string> = {
   'Customer Context and Discovery': 'Context',
-  'Demo Relevance and Storyline': 'Storyline',
+  'Demo Relevance and Value Connection': 'Demo Value',
   'Product and Technical Credibility': 'Technical',
   'Operational Fit and Adoption Readiness': 'Adoption',
   'Value and Business Impact': 'Value',
@@ -20,7 +20,10 @@ const CATEGORY_LABELS: Record<string, string> = {
   'Buyer-Centric Demo Language': 'Buyer Lang',
   'Communication and Executive Presence': 'Presence',
   'Objection, Concern, and Risk Handling': 'Risk',
-  'Call Leadership, Collaboration, and Next Steps': 'Next Steps',
+  'Call Support, Collaboration, and Technical Follow-through': 'Follow-through',
+  // Legacy category names — sessions scored before the rubric rename
+  'Demo Relevance and Storyline': 'Demo Value',
+  'Call Leadership, Collaboration, and Next Steps': 'Follow-through',
 };
 
 const getScoreColor = (pct: number) => {

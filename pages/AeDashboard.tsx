@@ -4,11 +4,15 @@ import {
   ResponsiveContainer, ReferenceLine, ComposedChart, Bar,
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from 'recharts';
-import { Phone, BarChart2, TrendingUp, Award, ExternalLink, History, Users, Trash2 } from 'lucide-react';
+import { Phone, BarChart2, TrendingUp, Award, ExternalLink, History, Users, Trash2, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserEvaluations, getAeSessionsForManager, getAeSessionsByName, deleteEvaluation } from '../services/firestoreService';
-import { getScoreInterpretation, getInterpretationLabel, getInterpretationColor } from '../utils/scoringHelpers';
+import {
+  getScoreInterpretation, getInterpretationLabel, getInterpretationColor,
+  canonicalSeCategory, CANONICAL_SE_CATEGORY_ORDER,
+  getSessionValueArticulation, getAverageValueArticulation, VALUE_ARTICULATION_MAX,
+} from '../utils/scoringHelpers';
 import { DemoSession, SCORING_RUBRIC } from '../types';
 import { AeSessionScorecard } from '../components/AeSessionScorecard';
 import { SeCallScorecard } from '../components/SeCallScorecard';
@@ -339,25 +343,6 @@ const SE_CATEGORY_SHORT: Record<string, string> = {
   'Call Leadership, Collaboration, and Next Steps':           'Collaboration',
 };
 
-// Old category names that map to their current equivalents
-const CATEGORY_ALIASES: Record<string, string> = {
-  'Demo Relevance and Storyline':                   'Demo Relevance and Value Connection',
-  'Call Leadership, Collaboration, and Next Steps': 'Call Support, Collaboration, and Technical Follow-through',
-};
-
-const CANONICAL_CATEGORY_ORDER = [
-  'Customer Context and Discovery',
-  'Demo Relevance and Value Connection',
-  'Product and Technical Credibility',
-  'Operational Fit and Adoption Readiness',
-  'Value and Business Impact',
-  'Customer Engagement and Active Listening',
-  'Buyer-Centric Demo Language',
-  'Communication and Executive Presence',
-  'Objection, Concern, and Risk Handling',
-  'Call Support, Collaboration, and Technical Follow-through',
-];
-
 const HEATMAP_CELL_W = 58;
 const HEATMAP_NAME_W = 130;
 
@@ -385,23 +370,19 @@ const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> 
   const seenCats = new Set<string>();
   for (const s of seSessions) {
     for (const c of s.seScoring!.evaluations[0].category_scores) {
-      seenCats.add(CATEGORY_ALIASES[c.category] ?? c.category);
+      seenCats.add(canonicalSeCategory(c.category));
     }
   }
-  const categories = CANONICAL_CATEGORY_ORDER.filter(c => seenCats.has(c));
+  const categories = CANONICAL_SE_CATEGORY_ORDER.filter(c => seenCats.has(c));
 
   const cellData: Record<string, Record<string, number | null>> = {};
   for (const name of aeNames) {
     cellData[name] = {};
     const forSe = seSessions.filter(s => s.callDeliveredBy === name);
     for (const cat of categories) {
-      // Match both the canonical name and any alias that maps to it
-      const aliasNames = Object.entries(CATEGORY_ALIASES)
-        .filter(([, v]) => v === cat)
-        .map(([k]) => k);
       const rows = forSe.flatMap(s =>
         s.seScoring!.evaluations[0].category_scores.filter(
-          c => c.category === cat || aliasNames.includes(c.category)
+          c => canonicalSeCategory(c.category) === cat
         )
       );
       cellData[name][cat] = rows.length > 0
@@ -485,6 +466,183 @@ const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> 
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#fecaca', border: '1px solid #fca5a5' }} /> &lt;60%</span>
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }} /> No data</span>
       </div>
+    </div>
+  );
+};
+
+// ─── Value Articulation ───────────────────────────────────────────────────────
+
+/** Trend of Value Articulation % against overall score % across recent calls. */
+const ValueTrendChart: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) => {
+  const data = [...sessions]
+    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+    .map(s => ({ session: s, value: getSessionValueArticulation(s) }))
+    .filter((d): d is { session: DemoSession; value: NonNullable<ReturnType<typeof getSessionValueArticulation>> } => d.value !== null)
+    .slice(-10)
+    .map(d => ({
+      date: formatDateShort(d.session.createdAt),
+      value: d.value.pct,
+      overall: getSessionScorePct(d.session),
+    }));
+
+  if (data.length < 2) {
+    return (
+      <div className="flex items-center justify-center h-[200px] text-sm text-gray-400 text-center px-4">
+        At least two scored calls are needed to show a trend.
+      </div>
+    );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={200}>
+      <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+        <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+        <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#94a3b8' }} width={30} />
+        <Tooltip
+          contentStyle={{ fontSize: 12, borderRadius: 8 }}
+          formatter={(v: number, name: string) => [
+            `${v}%`,
+            name === 'value' ? 'Value Articulation' : 'Overall Score',
+          ]}
+        />
+        <ReferenceLine y={75} stroke="#16a34a" strokeDasharray="4 2" label={{ value: 'Pass', fontSize: 10, fill: '#16a34a', position: 'insideTopRight' }} />
+        <Line
+          type="monotone"
+          dataKey="overall"
+          name="overall"
+          stroke="#cbd5e1"
+          strokeWidth={2}
+          dot={{ fill: '#cbd5e1', r: 3 }}
+        />
+        <Line
+          type="monotone"
+          dataKey="value"
+          name="value"
+          stroke="#7c3aed"
+          strokeWidth={2.5}
+          dot={{ fill: '#7c3aed', r: 4 }}
+          activeDot={{ r: 6 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+};
+
+/** Per-SE Value Articulation comparison — managers viewing all SEs. */
+const ValueComparisonChart: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> = ({ sessions, aeNames }) => {
+  const data = aeNames
+    .map(name => {
+      const avg = getAverageValueArticulation(sessions.filter(s => s.callDeliveredBy === name));
+      return avg ? { name, pct: avg.pct, count: avg.count } : null;
+    })
+    .filter((d): d is { name: string; pct: number; count: number } => d !== null)
+    .sort((a, b) => b.pct - a.pct);
+
+  if (data.length < 2) return null;
+
+  const chartHeight = Math.max(180, data.length * 40 + 40);
+
+  return (
+    <ResponsiveContainer width="100%" height={chartHeight}>
+      <ComposedChart layout="vertical" data={data} margin={{ top: 10, right: 50, bottom: 5, left: 110 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
+        <XAxis
+          type="number"
+          domain={[0, 100]}
+          tick={{ fontSize: 11, fill: '#94a3b8' }}
+          tickFormatter={(v: number) => `${v}%`}
+        />
+        <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: '#374151' }} width={105} />
+        <Tooltip
+          contentStyle={{ fontSize: 12, borderRadius: 8 }}
+          formatter={(value: number, _name: string, item: any) => [
+            `${value}% · ${item.payload.count} call${item.payload.count !== 1 ? 's' : ''}`,
+            'Value Articulation',
+          ]}
+        />
+        <ReferenceLine x={75} stroke="#16a34a" strokeDasharray="4 2" label={{ value: 'Pass', fontSize: 10, fill: '#16a34a', position: 'insideTopRight' }} />
+        <Bar dataKey="pct" fill="#7c3aed" radius={[0, 3, 3, 0]} barSize={18} />
+      </ComposedChart>
+    </ResponsiveContainer>
+  );
+};
+
+const ValueArticulationPanel: React.FC<{
+  sessions: DemoSession[];
+  allSessions: DemoSession[];
+  aeNames: string[];
+  showPerSe: boolean;
+  selectedAe: string;
+}> = ({ sessions, allSessions, aeNames, showPerSe, selectedAe }) => {
+  const avg = getAverageValueArticulation(sessions);
+  if (!avg) return null;
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+      <div className="flex items-start justify-between gap-4 mb-1">
+        <h2 className="text-base font-bold text-brand-navy">
+          Value Articulation — is the demo explaining the WHY?{selectedAe !== 'all' ? ` — ${selectedAe}` : ''}
+        </h2>
+        <span className="text-xs text-gray-400 flex-shrink-0 mt-0.5">
+          {avg.count} call{avg.count !== 1 ? 's' : ''}
+        </span>
+      </div>
+      <p className="text-xs text-gray-400 mb-5 max-w-3xl leading-relaxed">
+        Demo Relevance and Value Connection (18 pts) + Value and Business Impact (10 pts) = {VALUE_ARTICULATION_MAX} of 100 points.
+        Measures whether capabilities shown were tied to this customer's outcomes, rather than demonstrated as features.
+      </p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[0.7fr_1.3fr] gap-6 items-start">
+        {/* Headline + category breakdown */}
+        <div>
+          <p className="text-5xl font-black text-brand-navy leading-none">{avg.pct}%</p>
+          <p className="text-xs font-semibold text-slate-400 mt-1.5 uppercase tracking-wide">
+            of available value points
+          </p>
+          <div className="h-2 rounded-full bg-slate-100 overflow-hidden mt-3">
+            <div className={`h-full ${getBarColor(avg.pct)}`} style={{ width: `${avg.pct}%` }} />
+          </div>
+
+          <div className="space-y-3 mt-5">
+            {avg.parts.map(part => (
+              <div key={part.category} className="rounded-lg border border-slate-100 bg-slate-50 p-3">
+                <div className="flex items-center justify-between mb-1.5 gap-2">
+                  <p className="text-sm font-bold text-brand-navy leading-tight">{part.category}</p>
+                  <span className="text-xs font-black text-slate-600 flex-shrink-0">{part.pct}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-white overflow-hidden border border-slate-100">
+                  <div className={`h-full ${getBarColor(part.pct)}`} style={{ width: `${part.pct}%` }} />
+                </div>
+                <p className="text-xs text-slate-500 mt-1">avg {part.earned}/{part.max} pts</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Trend vs overall score */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wide">Trend vs overall score</h3>
+            <div className="flex items-center gap-4 text-xs text-gray-500">
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-0.5 rounded-sm" style={{ backgroundColor: '#7c3aed' }} /> Value
+              </span>
+              <span className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-0.5 rounded-sm bg-slate-300" /> Overall
+              </span>
+            </div>
+          </div>
+          <ValueTrendChart sessions={sessions} />
+        </div>
+      </div>
+
+      {showPerSe && (
+        <div className="mt-6 pt-5 border-t border-slate-100">
+          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Value Articulation by SE</h3>
+          <ValueComparisonChart sessions={allSessions} aeNames={aeNames} />
+        </div>
+      )}
     </div>
   );
 };
@@ -675,6 +833,7 @@ export const AeDashboard: React.FC = () => {
   const scorePcts = sorted.map(getSessionScorePct);
   const avgScore = scorePcts.length > 0 ? Math.round(scorePcts.reduce((a, b) => a + b, 0) / scorePcts.length) : 0;
   const bestScore = scorePcts.length > 0 ? Math.max(...scorePcts) : 0;
+  const valueArticulation = getAverageValueArticulation(sorted);
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 space-y-6">
@@ -736,7 +895,7 @@ export const AeDashboard: React.FC = () => {
       )}
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         <StatCard
           label="Calls Scored"
           value={sorted.length}
@@ -764,7 +923,23 @@ export const AeDashboard: React.FC = () => {
           icon={<TrendingUp size={18} className="text-green-600" />}
           color="bg-green-50"
         />
+        <StatCard
+          label="Value Articulation"
+          value={valueArticulation ? `${valueArticulation.pct}%` : '—'}
+          sub={`Explaining the WHY · ${VALUE_ARTICULATION_MAX} pts`}
+          icon={<Target size={18} className="text-purple-600" />}
+          color="bg-purple-50"
+        />
       </div>
+
+      {/* Value Articulation — the "why" of the demo */}
+      <ValueArticulationPanel
+        sessions={sorted}
+        allSessions={sessions}
+        aeNames={aeNames}
+        showPerSe={isManager && selectedAe === 'all' && aeNames.length > 1}
+        selectedAe={selectedAe}
+      />
 
       {/* Skill Profile Radar */}
       {sorted.some(s => !!s.aiScoring || !!s.seScoring) && (

@@ -1,4 +1,4 @@
-import { ScorerProfile, Score, SCORING_RUBRIC, BDR_SCORING_RUBRIC, ScoringCriterion, BdrGrade } from '../types';
+import { ScorerProfile, Score, SCORING_RUBRIC, BDR_SCORING_RUBRIC, ScoringCriterion, BdrGrade, DemoSession } from '../types';
 
 /**
  * Score interpretation thresholds
@@ -417,4 +417,134 @@ export function prioritizeBdrImprovements(
     .sort((a, b) => b.impact - a.impact);
 
   return improvements.slice(0, topN);
+}
+
+// ─── SE Category Naming ───────────────────────────────────────────────────────
+
+/**
+ * Older SE category names that map to their current equivalents.
+ * The live scoring prompt renamed two categories; sessions scored before that
+ * change still carry the old names in Firestore.
+ */
+export const SE_CATEGORY_ALIASES: Record<string, string> = {
+  'Demo Relevance and Storyline':                   'Demo Relevance and Value Connection',
+  'Call Leadership, Collaboration, and Next Steps': 'Call Support, Collaboration, and Technical Follow-through',
+};
+
+export const CANONICAL_SE_CATEGORY_ORDER = [
+  'Customer Context and Discovery',
+  'Demo Relevance and Value Connection',
+  'Product and Technical Credibility',
+  'Operational Fit and Adoption Readiness',
+  'Value and Business Impact',
+  'Customer Engagement and Active Listening',
+  'Buyer-Centric Demo Language',
+  'Communication and Executive Presence',
+  'Objection, Concern, and Risk Handling',
+  'Call Support, Collaboration, and Technical Follow-through',
+];
+
+/**
+ * Normalise a stored SE category name to its current canonical name.
+ */
+export function canonicalSeCategory(name: string): string {
+  return SE_CATEGORY_ALIASES[name] ?? name;
+}
+
+// ─── Value Articulation ───────────────────────────────────────────────────────
+
+/**
+ * The two SE rubric categories that score whether the SE explained the "why" —
+ * i.e. connected what was demonstrated to a specific customer outcome, rather
+ * than only showing what the product does and how it works.
+ */
+export const VALUE_ARTICULATION_CATEGORIES = [
+  'Demo Relevance and Value Connection',
+  'Value and Business Impact',
+];
+
+/** Combined maximum for the two value categories (18 + 10) — display label only. */
+export const VALUE_ARTICULATION_MAX = 28;
+
+export interface ValueArticulationPart {
+  category: string;
+  earned: number;
+  max: number;
+  pct: number;
+}
+
+export interface ValueArticulation {
+  earned: number;
+  max: number;
+  pct: number;
+  parts: ValueArticulationPart[];
+}
+
+/**
+ * Value Articulation for a single session: points earned across the two value
+ * categories as a percentage of their combined maximum.
+ *
+ * Returns null when the session has no SE scoring, or when neither value
+ * category is present in its category scores.
+ */
+export function getSessionValueArticulation(session: DemoSession): ValueArticulation | null {
+  const categoryScores = session.seScoring?.evaluations?.[0]?.category_scores;
+  if (!categoryScores || categoryScores.length === 0) return null;
+
+  const parts: ValueArticulationPart[] = [];
+  for (const target of VALUE_ARTICULATION_CATEGORIES) {
+    const match = categoryScores.find(c => canonicalSeCategory(c.category) === target);
+    if (!match || match.max_points <= 0) continue;
+    parts.push({
+      category: target,
+      earned: match.points_awarded,
+      max: match.max_points,
+      pct: Math.round((match.points_awarded / match.max_points) * 100),
+    });
+  }
+
+  if (parts.length === 0) return null;
+
+  // Derive the max from the session's own scores so a rubric reweight doesn't
+  // silently skew the metric.
+  const earned = parts.reduce((sum, p) => sum + p.earned, 0);
+  const max = parts.reduce((sum, p) => sum + p.max, 0);
+
+  return { earned, max, pct: Math.round((earned / max) * 100), parts };
+}
+
+/**
+ * Average Value Articulation across a set of sessions — mean of the per-session
+ * percentages, matching how overall score averages are calculated.
+ *
+ * Returns null when no session in the list qualifies.
+ */
+export function getAverageValueArticulation(
+  sessions: DemoSession[]
+): { pct: number; count: number; parts: ValueArticulationPart[] } | null {
+  const results = sessions
+    .map(getSessionValueArticulation)
+    .filter((v): v is ValueArticulation => v !== null);
+
+  if (results.length === 0) return null;
+
+  const pct = Math.round(results.reduce((sum, r) => sum + r.pct, 0) / results.length);
+
+  // Average each contributing category independently so the breakdown still
+  // reads correctly when a session is missing one of the two.
+  const parts: ValueArticulationPart[] = [];
+  for (const target of VALUE_ARTICULATION_CATEGORIES) {
+    const rows = results
+      .map(r => r.parts.find(p => p.category === target))
+      .filter((p): p is ValueArticulationPart => p !== undefined);
+    if (rows.length === 0) continue;
+    parts.push({
+      category: target,
+      earned: Math.round((rows.reduce((sum, p) => sum + p.earned, 0) / rows.length) * 10) / 10,
+      max: rows[0].max,
+      pct: Math.round(rows.reduce((sum, p) => sum + p.pct, 0) / rows.length),
+    });
+  }
+
+  return { pct, count: results.length, parts };
 }
