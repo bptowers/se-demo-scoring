@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, Search, Filter, ExternalLink, Trash2 } from 'lu
 import { useAuth } from '../context/AuthContext';
 import { getManagerConfig, getDirectReports, ALL_AES_SENTINEL } from '../config/managerConfig';
 import { getAeSessionsForManager, getAeSessionsByName, getUserEvaluations, deleteEvaluation } from '../services/firestoreService';
+import { deleteEvaluationAsManager } from '../services/adminService';
 import { calculateTotalScore, getScoreInterpretation, getInterpretationLabel, getInterpretationColor, getBdrGrade, getBdrGradeLabel, getBdrGradeColor } from '../utils/scoringHelpers';
 import { DemoSession, SCORING_RUBRIC, BDR_SCORING_RUBRIC } from '../types';
 import { AeSessionScorecard } from '../components/AeSessionScorecard';
@@ -19,6 +20,7 @@ export const CallHistory: React.FC = () => {
   const [filterAe, setFilterAe] = useState<string>('all');
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const managerConfig = getManagerConfig(user?.email);
   const isGlobalManager = managerConfig?.directReports.includes(ALL_AES_SENTINEL) ?? false;
@@ -100,15 +102,24 @@ export const CallHistory: React.FC = () => {
   const handleDelete = async (session: DemoSession) => {
     if (!user) return;
     setDeleting(true);
+    setDeleteError(null);
     try {
-      await deleteEvaluation(user.uid, session.id, {
-        rubricType: session.rubricType,
-        hasAiScoring: !!(session.aiScoring || session.aiV2 || session.seScoring),
-      });
+      if (session.userId && session.userId !== user.uid) {
+        // Deleting a report's session from a manager's team view — must go through
+        // the privileged Cloud Function since Firestore rules only let the true
+        // owner delete their own `users/{uid}/evaluations/{id}` record.
+        await deleteEvaluationAsManager(session.userId, session.id);
+      } else {
+        await deleteEvaluation(user.uid, session.id, {
+          rubricType: session.rubricType,
+          hasAiScoring: !!(session.aiScoring || session.aiV2 || session.seScoring),
+        });
+      }
       setSessions(prev => prev.filter(s => s.id !== session.id));
       setConfirmDeleteId(null);
     } catch (e) {
       console.error('Failed to delete session:', e);
+      setDeleteError('Could not delete this session.');
     } finally {
       setDeleting(false);
     }
@@ -286,6 +297,9 @@ export const CallHistory: React.FC = () => {
                       </>
                     ) : (
                       <div className="flex items-center gap-1.5">
+                        {deleteError && confirmDeleteId === session.id && (
+                          <span className="text-xs text-red-600 whitespace-nowrap">{deleteError}</span>
+                        )}
                         <span className="text-xs text-slate-500 whitespace-nowrap">Delete?</span>
                         <button
                           onClick={() => handleDelete(session)}
@@ -295,7 +309,7 @@ export const CallHistory: React.FC = () => {
                           Yes
                         </button>
                         <button
-                          onClick={() => setConfirmDeleteId(null)}
+                          onClick={() => { setConfirmDeleteId(null); setDeleteError(null); }}
                           className="px-2 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded hover:bg-slate-200 transition-colors"
                         >
                           No

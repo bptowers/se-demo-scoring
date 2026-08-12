@@ -8,6 +8,7 @@ import { Phone, BarChart2, TrendingUp, Award, ExternalLink, History, Users, Tras
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getUserEvaluations, getAeSessionsForManager, getAeSessionsByName, deleteEvaluation } from '../services/firestoreService';
+import { deleteEvaluationAsManager } from '../services/adminService';
 import {
   getScoreInterpretation, getInterpretationLabel, getInterpretationColor,
   canonicalSeCategory, CANONICAL_SE_CATEGORY_ORDER,
@@ -656,12 +657,17 @@ const CallHistoryTable: React.FC<{
 }> = ({ sessions, onView, onDelete }) => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const handleDelete = async (session: DemoSession) => {
     setDeleting(true);
+    setDeleteError(null);
     try {
       await onDelete(session);
       setConfirmDeleteId(null);
+    } catch (e) {
+      console.error('Failed to delete session:', e);
+      setDeleteError('Could not delete this session.');
     } finally {
       setDeleting(false);
     }
@@ -711,6 +717,9 @@ const CallHistoryTable: React.FC<{
                   </div>
                 ) : (
                   <div className="flex items-center justify-end gap-1.5">
+                    {deleteError && confirmDeleteId === s.id && (
+                      <span className="text-xs text-red-600 whitespace-nowrap">{deleteError}</span>
+                    )}
                     <span className="text-xs text-gray-500 whitespace-nowrap">Delete?</span>
                     <button
                       onClick={() => handleDelete(s)}
@@ -720,7 +729,7 @@ const CallHistoryTable: React.FC<{
                       Yes
                     </button>
                     <button
-                      onClick={() => setConfirmDeleteId(null)}
+                      onClick={() => { setConfirmDeleteId(null); setDeleteError(null); }}
                       className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-bold rounded hover:bg-gray-200 transition-colors"
                     >
                       No
@@ -818,10 +827,17 @@ export const AeDashboard: React.FC = () => {
 
   const handleDelete = async (session: DemoSession) => {
     if (!user) return;
-    await deleteEvaluation(user.uid, session.id, {
-      rubricType: session.rubricType,
-      hasAiScoring: !!(session.aiScoring || session.aiV2 || session.seScoring),
-    });
+    if (session.userId && session.userId !== user.uid) {
+      // Deleting a report's session from the team view — must go through the
+      // privileged Cloud Function since Firestore rules only let the true owner
+      // delete their own `users/{uid}/evaluations/{id}` record.
+      await deleteEvaluationAsManager(session.userId, session.id);
+    } else {
+      await deleteEvaluation(user.uid, session.id, {
+        rubricType: session.rubricType,
+        hasAiScoring: !!(session.aiScoring || session.aiV2 || session.seScoring),
+      });
+    }
     setSessions(prev => prev.filter(s => s.id !== session.id));
   };
 

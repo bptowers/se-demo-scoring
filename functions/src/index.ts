@@ -1,6 +1,11 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { defineSecret } from "firebase-functions/params";
 import { GoogleGenAI, Type } from "@google/genai";
+import * as admin from "firebase-admin";
+
+if (admin.apps.length === 0) {
+  admin.initializeApp();
+}
 
 // ─── Secrets ─────────────────────────────────────────────────────────────────
 const geminiApiKey     = defineSecret("GEMINI_API_KEY");
@@ -1287,5 +1292,119 @@ Return ONLY a valid JSON object matching the requested SE_CALL_SCORECARD_V1 stru
       },
       evaluations: normalizedEvaluations.length > 0 ? normalizedEvaluations : [],
     };
+  }
+);
+
+// ─── Manager Delete Function ──────────────────────────────────────────────────
+// NOTE: Duplicated from config/managerConfig.ts and the bdrSessions rule in
+// firestore.rules — keep in sync if the manager roster or BDR dashboard
+// manager list changes.
+
+interface ManagerConfigEntry {
+  email: string;
+  directReports: string[];
+}
+
+const ALL_AES_SENTINEL = "__ALL__";
+
+const MANAGERS: ManagerConfigEntry[] = [
+  { email: "alex.shepherd@bigchange.com",          directReports: ["Arab Ismail", "Edan Poole", "Ellie Sufrin", "Ellis Whelan", "Emilio Lavia", "Harris Tariq", "Matthew Fryer", "Oliver Abrahamson", "Robert Johnson", "Ryan Oliver"] },
+  { email: "simon.tusinghamjones@simprogroup.com", directReports: ["Calum Radcliffe", "David Taylor", "Dom George", "Jake Beattie", "Lydia Brown", "Marco Marques", "Mark Rees", "Ricky Campitelli", "Simon Heath", "Steven Crake", "Theo Webster", "Thomas Bennett"] },
+  { email: "stewart.mclellan@simpro.co.uk",        directReports: ["Calum Radcliffe", "David Taylor", "Dom George", "Jake Beattie", "Lydia Brown", "Marco Marques", "Mark Rees", "Ricky Campitelli", "Simon Heath", "Steven Crake", "Theo Webster", "Thomas Bennett"] },
+  { email: "mike.langley@simpro.com",              directReports: ["Anais Calderon", "Andrew Bessette", "Bo Schumacher", "Brad Lewis", "Chris Karns", "David Stevens", "Hector Weston Maestro Gomez", "Henry Colwell", "Jake Savage", "Joey Commons", "Kevin O'Brien", "Kyle Byars", "Liam Farrell"] },
+  { email: "daniel.metcalf@clockshark.com",        directReports: ["Brendan Johns", "Brian Conry", "David Nelson", "Kevin Barry", "Lianna Banyasz", "Liz Ruiz", "Lucas Halligan", "Max Sciarini", "Nicholas Mascelli", "Tyler Atmore"] },
+  { email: "justin.barlow@simpro.com.au",          directReports: ["Ash Parrot", "Calum Griffin", "Daryus Aden", "Jean Bouzeid", "Jonathan Barrett", "Justin Billie"] },
+  { email: "milan.kumar@simpro.com",               directReports: ["Brian Burke", "Dan Farinelli", "Nick Opasinis", "Nikhil Kalluri", "Stephen Hasset"] },
+  { email: "pete.mansel@simpro.com",               directReports: [ALL_AES_SENTINEL] },
+  { email: "thilo.schatz@simpro.us",               directReports: [ALL_AES_SENTINEL] },
+  { email: "michael.weinberg@simpro.com",          directReports: ["Gabrielle Coakley", "Joshua Leszko", "Kate Rothenbuecher", "Kieran Davies", "Leone Southton", "Mark Bentley", "Tien Trinh"] },
+  { email: "jason.smith@simprogroup.com",          directReports: ["Rob Inman", "Rob Greer", "Rob Sanders", "Amer Sharief", "Sheryl Bacor", "Heather Maxwell", "Melissa Jones"] },
+  { email: "brad.towers@simprogroup.com",          directReports: [ALL_AES_SENTINEL] },
+  { email: "fred.voccola@simprogroup.com",         directReports: [ALL_AES_SENTINEL] },
+  { email: "frank.tisellano@simprogroup.com",      directReports: [ALL_AES_SENTINEL] },
+];
+
+const BDR_DASHBOARD_MANAGERS = [
+  "dave.murphy@bigchange.com",
+  "brad.towers@simprogroup.com",
+  "pete.mansel@simprogroup.com",
+  "david.doloboff@simpro.us",
+];
+
+function getResolvedDirectReports(email: string): string[] {
+  const config = MANAGERS.find((m) => m.email === email.toLowerCase());
+  if (!config) return [];
+  if (!config.directReports.includes(ALL_AES_SENTINEL)) return config.directReports;
+  const all = MANAGERS
+    .filter((m) => !m.directReports.includes(ALL_AES_SENTINEL))
+    .flatMap((m) => m.directReports);
+  return [...new Set(all)];
+}
+
+function isGlobalManager(email: string): boolean {
+  const config = MANAGERS.find((m) => m.email === email.toLowerCase());
+  return !!config?.directReports.includes(ALL_AES_SENTINEL);
+}
+
+interface DeleteEvaluationRequest {
+  targetUserId: string;
+  sessionId: string;
+}
+
+export const deleteEvaluationAsManager = onCall(
+  { timeoutSeconds: 30, region: "us-central1" },
+  async (request): Promise<{ success: true }> => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "Must be signed in.");
+    }
+    const callerEmail = (request.auth.token.email as string | undefined)?.toLowerCase();
+    if (!callerEmail) {
+      throw new HttpsError("unauthenticated", "Signed-in account has no email.");
+    }
+
+    const { targetUserId, sessionId } = request.data as DeleteEvaluationRequest;
+    if (!targetUserId || typeof targetUserId !== "string" || !sessionId || typeof sessionId !== "string") {
+      throw new HttpsError("invalid-argument", "targetUserId and sessionId are required.");
+    }
+
+    const db = admin.firestore();
+    const docRef = db.collection("users").doc(targetUserId).collection("evaluations").doc(sessionId);
+    const snap = await docRef.get();
+    if (!snap.exists) {
+      throw new HttpsError("not-found", "Session not found.");
+    }
+    const session = snap.data() as {
+      rubricType?: ScoringRubricType;
+      bdrRepEmail?: string;
+      callDeliveredBy?: string;
+      aiScoring?: unknown;
+      aiV2?: unknown;
+      seScoring?: unknown;
+    };
+
+    const isBdr = session.rubricType === "BDR";
+    // Global managers see every AE/SE session in their dashboard regardless of
+    // callDeliveredBy (AeDashboard.tsx/CallHistory.tsx skip the name filter for
+    // them) — mirror that here so they can also delete sessions with a blank
+    // or unmatched name, not just ones with a recognizable direct-report name.
+    const authorized = isBdr
+      ? BDR_DASHBOARD_MANAGERS.includes(callerEmail)
+      : isGlobalManager(callerEmail) ||
+        (!!session.callDeliveredBy && getResolvedDirectReports(callerEmail).includes(session.callDeliveredBy));
+
+    if (!authorized) {
+      throw new HttpsError("permission-denied", "You are not authorized to delete this session.");
+    }
+
+    const batch = db.batch();
+    batch.delete(docRef);
+    if (isBdr) {
+      batch.delete(db.collection("bdrSessions").doc(sessionId));
+    } else if (session.aiScoring || session.aiV2 || session.seScoring) {
+      batch.delete(db.collection("aeSessions").doc(sessionId));
+    }
+    await batch.commit();
+
+    return { success: true };
   }
 );
