@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { AlertTriangle, Bot, Headphones, Loader2, Mic, WifiOff } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 /*
  * ElevenLabs Conversational AI widget loader.
@@ -37,7 +38,13 @@ const ConvaiWidget = WIDGET_TAG as unknown as React.FC<{
   'agent-id'?: string;
   /** Alternative to agent-id, for a future private-agent flow. */
   'signed-url'?: string;
+  ref?: React.Ref<HTMLElement>;
 }>;
+// NOTE: `dynamic-variables` is deliberately absent above. Passing it as a React prop did
+// not produce an HTML attribute on the custom element (verified in the browser:
+// getAttribute('dynamic-variables') returned null), so it is set imperatively via the ref
+// below. That also guarantees the attribute exists before the CDN script upgrades the
+// element and reads it.
 
 let widgetScriptPromise: Promise<void> | null = null;
 
@@ -98,6 +105,22 @@ const loadWidgetScript = (): Promise<void> => {
 
 type WidgetStatus = 'loading' | 'ready' | 'error';
 
+/**
+ * First name only, for the agent to address the SE by. Never send the email, the UID, or
+ * the full display name — the agent needs a form of address, not an identity, and every
+ * dynamic variable is transmitted to ElevenLabs.
+ */
+const deriveFirstName = (user: { displayName: string | null; email: string | null } | null): string => {
+  const fromDisplay = user?.displayName?.trim().split(/\s+/)[0];
+  if (fromDisplay) return fromDisplay;
+
+  // brad.towers@simprogroup.com → "Brad" — first token only, never the whole local part.
+  const fromEmail = user?.email?.split('@')[0]?.split(/[._\-+]/)[0];
+  if (fromEmail) return fromEmail.charAt(0).toUpperCase() + fromEmail.slice(1).toLowerCase();
+
+  return 'there';
+};
+
 const StepNumber: React.FC<{ n: number }> = ({ n }) => (
   <span className="w-7 h-7 flex-shrink-0 rounded-full bg-brand-yellow text-brand-navy text-sm font-black flex items-center justify-center">
     {n}
@@ -106,7 +129,16 @@ const StepNumber: React.FC<{ n: number }> = ({ n }) => (
 
 export const AiDemoCoach: React.FC = () => {
   const agentId = import.meta.env.VITE_ELEVENLABS_AGENT_ID as string | undefined;
+  const { user } = useAuth();
   const [status, setStatus] = useState<WidgetStatus>('loading');
+  const widgetRef = useRef<HTMLElement | null>(null);
+
+  // Only reachable behind ProtectedRoute, so a user is normally present — but displayName
+  // is nullable on Google accounts without a profile name, hence the fallback chain.
+  const dynamicVariables = useMemo(
+    () => JSON.stringify({ user_name: deriveFirstName(user) }),
+    [user]
+  );
 
   useEffect(() => {
     if (!agentId) return;
@@ -128,6 +160,13 @@ export const AiDemoCoach: React.FC = () => {
       cancelled = true;
     };
   }, [agentId]);
+
+  // Set the dynamic variables imperatively — see the NOTE on the ConvaiWidget type. Runs on
+  // mount (while status is still 'loading', so before the CDN script upgrades the element)
+  // and again if the resolved first name changes once auth settles.
+  useEffect(() => {
+    widgetRef.current?.setAttribute('dynamic-variables', dynamicVariables);
+  }, [dynamicVariables, agentId, status]);
 
   return (
     <div className="max-w-5xl mx-auto py-8 px-4 space-y-6">
@@ -233,7 +272,7 @@ export const AiDemoCoach: React.FC = () => {
 
       {/* The widget renders its UI into its own shadow root, so unmounting this element
           on navigation is what removes the floating bubble. */}
-      {agentId && status !== 'error' && <ConvaiWidget agent-id={agentId} />}
+      {agentId && status !== 'error' && <ConvaiWidget agent-id={agentId} ref={widgetRef} />}
     </div>
   );
 };
