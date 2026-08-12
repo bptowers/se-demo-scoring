@@ -13,8 +13,9 @@ export default defineConfig(({ mode }) => {
       plugins: [react()],
       define: {
         // GEMINI_API_KEY removed — now stored in Firebase Secret Manager and called via Cloud Function
-        'process.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY),
-        'process.env.ANTHROPIC_API_KEY': JSON.stringify(env.ANTHROPIC_API_KEY),
+        // OPENAI_API_KEY / ANTHROPIC_API_KEY removed — inlining them shipped live credentials in the
+        // public bundle. The legacy AE V1 browser path now reports itself unconfigured; any future
+        // OpenAI/Anthropic support must go through a Cloud Function, like Gemini.
         // Prevent crash when accessing process.env in client
         'process.env': {}
       },

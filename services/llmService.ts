@@ -1,19 +1,26 @@
 import { LLMProvider, ScorerProfile, LLMProviderInfo, ScoringRubricType, AeV2ScorerProfile, GeminiModelId, SeScorerProfile } from '../types';
 import { LLMService } from './llmServiceInterface';
 import { GeminiService } from './geminiService';
-import { OpenAIService } from './openaiService';
-import { AnthropicService } from './anthropicService';
 
-const services: Record<LLMProvider, LLMService> = {
-  gemini: new GeminiService(),
-  openai: new OpenAIService(),
-  anthropic: new AnthropicService()
+/*
+ * OpenAIService / AnthropicService are deliberately NOT registered here. They only ever
+ * worked by reading an API key from the client bundle, which shipped live credentials to
+ * anyone who could load the page. The key inlining is gone from vite.config.ts, so these
+ * providers cannot function in the browser; leaving them unreferenced also keeps the
+ * `openai` and `@anthropic-ai/sdk` packages out of the bundle entirely. The service files
+ * remain in the repo as the reference AE V1 implementations for a future Cloud Function
+ * port — the same route Gemini already takes.
+ */
+const services: Partial<Record<LLMProvider, LLMService>> = {
+  gemini: new GeminiService()
 };
 
 export const getLLMService = (provider: LLMProvider): LLMService => {
   const service = services[provider];
   if (!service) {
-    throw new Error(`Unknown LLM provider: ${provider}`);
+    throw new Error(
+      `${provider} is not available in the browser. Only Gemini is supported, via Cloud Functions.`
+    );
   }
   return service;
 };
@@ -24,13 +31,13 @@ export const getAvailableProviders = (): LLMProviderInfo[] => {
       id: 'gemini',
       name: 'Google Gemini 2.5 Flash',
       description: '',
-      isConfigured: services.gemini.isConfigured()
+      isConfigured: services.gemini?.isConfigured() ?? false
     },
     {
       id: 'openai',
       name: 'OpenAI GPT-4 Turbo (Apr 2024)',
-      description: '',
-      isConfigured: services.openai.isConfigured()
+      description: 'Coming Soon',
+      isConfigured: false
     },
     {
       id: 'anthropic',
