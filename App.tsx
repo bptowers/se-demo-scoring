@@ -12,6 +12,7 @@ import { AiDemoCoach } from './pages/AiDemoCoach';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { getManagerConfig } from './config/managerConfig';
 import { canViewSeRubric } from './config/rubricAccess';
+import { canViewAiCoach } from './config/aiCoachAccess';
 
 const ManagerRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -44,6 +45,22 @@ const RubricRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   }
   if (!user) return <Navigate to="/login" replace />;
   if (!canViewSeRubric(user.email)) return <Navigate to="/" replace />;
+  return <>{children}</>;
+};
+
+// Gates /ai-coach to the AI-coach allowlist. The link is hidden in Layout.tsx, but this is
+// what stops a bookmarked or guessed URL from mounting the ElevenLabs widget.
+const AiCoachRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-brand-navy flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-yellow"></div>
+      </div>
+    );
+  }
+  if (!user) return <Navigate to="/login" replace />;
+  if (!canViewAiCoach(user.email)) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
 
@@ -134,11 +151,11 @@ const AppRoutes: React.FC = () => {
       <Route
         path="/ai-coach"
         element={
-          <ProtectedRoute>
+          <AiCoachRoute>
             <Layout>
               <AiDemoCoach />
             </Layout>
-          </ProtectedRoute>
+          </AiCoachRoute>
         }
       />
     </Routes>
