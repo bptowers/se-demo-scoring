@@ -129,10 +129,14 @@ const SESSION_STEPS = [
 
 /*
  * Attributes verified against the @elevenlabs/convai-widget-embed 0.15.1 bundle's own
- * attribute table. Two traps worth knowing before editing:
+ * attribute table. Three traps worth knowing before editing:
  *  - `variant` accepts only tiny | compact | full. An unrecognised value (e.g. "expanded")
- *    silently falls back to `tiny`, which SHRINKS the widget. The expanded presentation
- *    comes from `always-expanded`, not from `variant`.
+ *    silently falls back to `tiny`, which SHRINKS the widget.
+ *  - `always-expanded` must NOT be used here. Verified twice in the browser (once on an
+ *    allowlisted local host, once on production): it makes the widget open a conversation
+ *    as the page loads, with no user action, consuming ElevenLabs quota on every visit.
+ *    `default-expanded` keeps the same full presentation but leaves starting the session
+ *    to the user's own click on the widget's Start control.
  *  - There is no `start-call-text` / `end-call-text` attribute; button labels live in the
  *    `text-contents` JSON blob under `start_call` / `end_call`.
  * Everything here is client-side presentation only — it does not touch the agent's own
@@ -140,7 +144,7 @@ const SESSION_STEPS = [
  */
 const WIDGET_ATTRIBUTES: Record<string, string> = {
   variant: 'full',
-  'always-expanded': 'true',
+  'default-expanded': 'true',
   dismissible: 'false',
   'avatar-orb-color-1': '#ffc20e',
   'avatar-orb-color-2': '#e0a800',
