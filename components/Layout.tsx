@@ -26,17 +26,18 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
       {/* Top Navigation */}
       <header className="bg-brand-navy text-white sticky top-0 z-50 shadow-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/" className="text-2xl font-black tracking-tight flex items-center gap-2">
+          <div className="flex items-center gap-4 flex-shrink-0">
+            {/* nowrap: a fifth nav item made the brand wrap onto a second line at 1440px. */}
+            <Link to="/" className="text-2xl font-black tracking-tight flex items-center gap-2 whitespace-nowrap">
               <div className="w-8 h-8 bg-brand-yellow rounded-lg flex items-center justify-center text-brand-navy shadow-lg shadow-brand-yellow/20">
                 <Mic2 size={20} />
               </div>
               SIMPRO GROUP <span className="font-light opacity-80">SE Demo Scoring</span>
             </Link>
           </div>
-          
+
           <div className="flex items-center gap-6">
-             <nav className="hidden md:flex gap-6 text-sm font-medium text-slate-300">
+             <nav className="hidden md:flex gap-4 xl:gap-6 text-sm font-medium text-slate-300 whitespace-nowrap">
                <Link to="/" className="hover:text-brand-yellow transition-colors">Scoring App</Link>
                <Link to="/trends" className="hover:text-brand-yellow transition-colors">My Trends</Link>
                {isManager && (
@@ -44,7 +45,10 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                )}
                <Link to="/se-dashboard" className="hover:text-brand-yellow transition-colors">SE Dashboard</Link>
                {showAiCoach && (
-                 <Link to="/ai-coach" className="hover:text-brand-yellow transition-colors">AI Coach</Link>
+                 <>
+                   <Link to="/ai-coach" className="hover:text-brand-yellow transition-colors">AI Coach</Link>
+                   <Link to="/objection-coach" className="hover:text-brand-yellow transition-colors">AI Objection Coach</Link>
+                 </>
                )}
              </nav>
             <div className="h-6 w-px bg-slate-700 mx-2"></div>

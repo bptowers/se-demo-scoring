@@ -9,6 +9,7 @@ import { AeDashboard } from './pages/AeDashboard';
 import { CallHistory } from './pages/CallHistory';
 import { SeRubricGuide } from './pages/SeRubricGuide';
 import { AiDemoCoach } from './pages/AiDemoCoach';
+import { ObjectionCoach } from './pages/ObjectionCoach';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { getManagerConfig } from './config/managerConfig';
 import { canViewSeRubric } from './config/rubricAccess';
@@ -48,8 +49,9 @@ const RubricRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
-// Gates /ai-coach to the AI-coach allowlist. The link is hidden in Layout.tsx, but this is
-// what stops a bookmarked or guessed URL from mounting the ElevenLabs widget.
+// Gates the live coaching routes (/ai-coach, /objection-coach) to the AI-coach allowlist.
+// The links are hidden in Layout.tsx, but this is what stops a bookmarked or guessed URL
+// from mounting the ElevenLabs widget.
 const AiCoachRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
   if (loading) {
@@ -154,6 +156,16 @@ const AppRoutes: React.FC = () => {
           <AiCoachRoute>
             <Layout>
               <AiDemoCoach />
+            </Layout>
+          </AiCoachRoute>
+        }
+      />
+      <Route
+        path="/objection-coach"
+        element={
+          <AiCoachRoute>
+            <Layout>
+              <ObjectionCoach />
             </Layout>
           </AiCoachRoute>
         }
