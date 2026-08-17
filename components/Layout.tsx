@@ -25,19 +25,33 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     <div className="min-h-screen flex flex-col bg-gray-50 font-sans text-slate-800">
       {/* Top Navigation */}
       <header className="bg-brand-navy text-white sticky top-0 z-50 shadow-lg border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        {/*
+          gap-8 rather than relying on justify-between alone: with a manager's six nav links
+          the row can exceed the 1216px content box, and justify-between then leaves ZERO
+          space, butting the brand straight into the first link. An explicit gap is a floor
+          that survives overflow.
+
+          The brand is the icon + "SIMPRO GROUP" only. The "SE Demo Scoring" suffix used to
+          sit here too, but at 163px it consumed the space the nav needs — with six links it
+          left the row at its minimum spacing. The product name still appears in the footer
+          and the document title.
+        */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-8">
           <div className="flex items-center gap-4 flex-shrink-0">
-            {/* nowrap: a fifth nav item made the brand wrap onto a second line at 1440px. */}
-            <Link to="/" className="text-2xl font-black tracking-tight flex items-center gap-2 whitespace-nowrap">
-              <div className="w-8 h-8 bg-brand-yellow rounded-lg flex items-center justify-center text-brand-navy shadow-lg shadow-brand-yellow/20">
+            <Link to="/" className="text-xl font-black tracking-tight flex items-center gap-2 whitespace-nowrap">
+              <div className="w-8 h-8 bg-brand-yellow rounded-lg flex items-center justify-center text-brand-navy shadow-lg shadow-brand-yellow/20 flex-shrink-0">
                 <Mic2 size={20} />
               </div>
-              SIMPRO GROUP <span className="font-light opacity-80">SE Demo Scoring</span>
+              SIMPRO GROUP
             </Link>
           </div>
 
           <div className="flex items-center gap-6">
-             <nav className="hidden md:flex gap-4 xl:gap-6 text-sm font-medium text-slate-300 whitespace-nowrap">
+             {/*
+               Tighter type and gaps between lg and xl: with six links, full-size spacing at
+               1024px overflows the page horizontally. From xl up there is room to breathe.
+             */}
+             <nav className="hidden lg:flex gap-4 xl:gap-7 text-[13px] xl:text-sm font-medium text-slate-300 whitespace-nowrap">
                <Link to="/" className="hover:text-brand-yellow transition-colors">Scoring App</Link>
                <Link to="/trends" className="hover:text-brand-yellow transition-colors">My Trends</Link>
                {isManager && (
@@ -53,7 +67,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
              </nav>
             <div className="h-6 w-px bg-slate-700 mx-2"></div>
             <div className="flex items-center gap-3">
-              <div className="text-right hidden sm:block">
+              {/* Name hidden between lg and xl so six nav links fit without page overflow. */}
+              <div className="text-right hidden sm:block lg:hidden xl:block">
                 <p className="text-xs text-slate-400 uppercase font-semibold">Logged in as</p>
                 <p className="text-sm font-bold text-white truncate max-w-[150px]">
                   {user.displayName || user.email || 'Sales Engineer'}
