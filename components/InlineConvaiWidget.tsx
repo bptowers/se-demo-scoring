@@ -162,6 +162,9 @@ const BASE_WIDGET_ATTRIBUTES: Record<string, string> = {
   variant: 'full',
   'default-expanded': 'true',
   dismissible: 'false',
+  // Enables the widget's `elevenlabs-convai:call` event. Presentation only — it does not start
+  // or auto-connect a conversation.
+  'allow-events': 'true',
   'avatar-orb-color-1': '#ffc20e',
   'avatar-orb-color-2': '#e0a800',
 };
@@ -177,6 +180,18 @@ export interface InlineConvaiWidgetProps {
   endLabel: string;
   /** Resolved first name, injected as the `user_name` dynamic variable. */
   userName: string;
+  /**
+   * Extra dynamic variables merged alongside `user_name`, e.g. the report-ownership fields
+   * Morgan needs so its post-call webhook can attribute the report. Optional so coaches that
+   * need nothing extra are unaffected.
+   */
+  extraDynamicVariables?: Record<string, string>;
+  /**
+   * Fired when the user starts a conversation. Driven by the widget's `elevenlabs-convai:call`
+   * event, which the bundle dispatches as a pre-call config hook — so it signals "a session is
+   * starting", NOT "a call ended". Widget 0.15.1 emits no call-ended event; do not infer one.
+   */
+  onSessionStart?: () => void;
 }
 
 /**
@@ -189,11 +204,16 @@ export const InlineConvaiWidget: React.FC<InlineConvaiWidgetProps> = ({
   startLabel,
   endLabel,
   userName,
+  extraDynamicVariables,
+  onSessionStart,
 }) => {
   const [status, setStatus] = useState<WidgetStatus>('loading');
   const widgetRef = useRef<HTMLElement | null>(null);
 
-  const dynamicVariables = useMemo(() => JSON.stringify({ user_name: userName }), [userName]);
+  const dynamicVariables = useMemo(
+    () => JSON.stringify({ user_name: userName, ...(extraDynamicVariables ?? {}) }),
+    [userName, extraDynamicVariables]
+  );
   const textContents = useMemo(
     () => JSON.stringify({ start_call: startLabel, end_call: endLabel }),
     [startLabel, endLabel]
@@ -230,6 +250,18 @@ export const InlineConvaiWidget: React.FC<InlineConvaiWidgetProps> = ({
     Object.entries(BASE_WIDGET_ATTRIBUTES).forEach(([name, value]) => el.setAttribute(name, value));
     Object.assign(el.style, HOST_STYLE);
   }, [dynamicVariables, textContents, agentId, status]);
+
+  // Session-start signal. `elevenlabs-convai:call` is dispatched by the widget just before a
+  // conversation begins (it carries `detail.config` for mutation), so it is a reliable "starting"
+  // marker and nothing more.
+  useEffect(() => {
+    const el = widgetRef.current;
+    if (!el || !onSessionStart) return;
+
+    const handler = () => onSessionStart();
+    el.addEventListener('elevenlabs-convai:call', handler);
+    return () => el.removeEventListener('elevenlabs-convai:call', handler);
+  }, [onSessionStart, agentId, status]);
 
   if (status === 'error') {
     return (

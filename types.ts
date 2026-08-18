@@ -316,3 +316,44 @@ export const SE_SCORING_RUBRIC: ScoringCriterion[] = [
   { id: 'se_objection_risk_handling', name: 'Objection, Concern, and Risk Handling', section: 'Deal Advancement', maxPoints: 7, description: 'Handled concerns, validation needs, and risks directly and constructively.' },
   { id: 'se_call_leadership_next_steps', name: 'Call Support, Collaboration, and Technical Follow-through', section: 'Deal Advancement', maxPoints: 4, description: "Supported the AE's call structure, managed technical transitions cleanly, and owned any open technical items with a clear resolution path. Commercial and scheduling next steps are the AE's responsibility and are not scored here." },
 ];
+
+// ─── Morgan live-practice reports (ElevenLabs post-call analysis) ─────────────
+// Written server-side only, by the elevenLabsPostCallWebhook Cloud Function. These are
+// live-practice coaching reports and are deliberately separate from DemoSession / retrospective
+// SE demo scoring — different source, different lifecycle, different rubric.
+
+export type PracticeCriterionStatus = 'success' | 'failure' | 'unknown';
+
+export type PracticeOverallRating = 'Strong' | 'Developing' | 'Needs focus' | 'Incomplete';
+
+export interface PracticeEvaluationResult {
+  criterionId: string;
+  status: PracticeCriterionStatus;
+  /** ElevenLabs' own rationale. Never generated or rewritten by this app. */
+  rationale: string;
+}
+
+export interface PracticeExtractedField {
+  fieldId: string;
+  value: string;
+  rationale: string;
+}
+
+export interface PracticeReport {
+  provider: 'elevenlabs';
+  conversationId: string;
+  agentId: string;
+  agentVersion: string | null;
+  scenarioId: string;
+  sessionId: string;
+  status: 'ready';
+  createdAt?: Date;
+  completedAt?: Date;
+  durationSeconds: number | null;
+  terminationReason: string;
+  transcriptSummary: string;
+  overallRating: PracticeOverallRating;
+  evaluationResults: PracticeEvaluationResult[];
+  extractedFields: PracticeExtractedField[];
+  nextPracticeObjective: string;
+}
