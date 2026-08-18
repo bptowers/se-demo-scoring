@@ -252,16 +252,32 @@ export const elevenLabsPostCallWebhook = onRequest(
 
     let event: any;
     try {
-      const client = new ElevenLabsClient();
+      /*
+       * The apiKey is a required constructor argument at runtime even though the SDK's types
+       * mark it optional — without it the client throws "Please pass in your ElevenLabs API
+       * Key" before any verification happens. constructEvent is purely offline HMAC-SHA256 over
+       * `${timestamp}.${rawBody}` (verified by reading the SDK source) and makes no network
+       * call, so this placeholder is never used to authenticate anything. No real ElevenLabs
+       * API key exists in this project, client or server.
+       */
+      const client = new ElevenLabsClient({ apiKey: "unused-webhook-verification-only" });
       event = await client.webhooks.constructEvent(
         rawBody,
         signature,
         elevenLabsWebhookSecret.value()
       );
     } catch (error) {
-      // Deliberately does not echo the error detail or body - anyone probing signatures learns
-      // nothing beyond the status code.
-      logger.warn("post-call webhook rejected", { reason: "invalid-signature" });
+      /*
+       * The response body stays a bare "Unauthorized" - anyone probing signatures learns nothing
+       * beyond the status code. The SDK's own message is logged because it distinguishes the
+       * three distinct causes (secret not configured / timestamp outside tolerance / hash
+       * mismatch) and contains no secret material.
+       */
+      logger.warn("post-call webhook rejected", {
+        reason: "invalid-signature",
+        sdkMessage: error instanceof Error ? error.message : String(error),
+        secretConfigured: !!elevenLabsWebhookSecret.value(),
+      });
       res.status(401).send("Unauthorized");
       return;
     }
