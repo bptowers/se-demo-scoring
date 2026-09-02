@@ -1384,7 +1384,7 @@ export const deleteEvaluationAsManager = onCall(
 
     const isBdr = session.rubricType === "BDR";
     // Global managers see every AE/SE session in their dashboard regardless of
-    // callDeliveredBy (AeDashboard.tsx/CallHistory.tsx skip the name filter for
+    // callDeliveredBy (SeDashboard.tsx/CallHistory.tsx skip the name filter for
     // them) — mirror that here so they can also delete sessions with a blank
     // or unmatched name, not just ones with a recognizable direct-report name.
     const authorized = isBdr

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Search, Filter, ExternalLink, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { getManagerConfig, getDirectReports, ALL_AES_SENTINEL } from '../config/managerConfig';
+import { getManagerConfig, getDirectReports, ALL_SES_SENTINEL } from '../config/managerConfig';
 import { getSeSessionsForManager, getSeSessionsByName, getUserEvaluations, deleteEvaluation } from '../services/firestoreService';
 import { deleteEvaluationAsManager } from '../services/adminService';
 import { calculateTotalScore, getScoreInterpretation, getInterpretationLabel, getInterpretationColor, getBdrGrade, getBdrGradeLabel, getBdrGradeColor } from '../utils/scoringHelpers';
@@ -23,7 +23,7 @@ export const CallHistory: React.FC = () => {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const managerConfig = getManagerConfig(user?.email);
-  const isGlobalManager = managerConfig?.directReports.includes(ALL_AES_SENTINEL) ?? false;
+  const isGlobalManager = managerConfig?.directReports.includes(ALL_SES_SENTINEL) ?? false;
   const isManager = !!managerConfig;
 
   // Full AE roster from config (not just those who have sessions)

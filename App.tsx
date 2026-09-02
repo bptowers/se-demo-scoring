@@ -5,7 +5,7 @@ import { DemoScoringApp } from './pages/DemoScoringApp';
 import { TrendReport } from './pages/TrendReport';
 import { Login } from './pages/Login';
 import { ManagerDashboard } from './pages/ManagerDashboard';
-import { AeDashboard } from './pages/AeDashboard';
+import { SeDashboard } from './pages/SeDashboard';
 import { CallHistory } from './pages/CallHistory';
 import { SeRubricGuide } from './pages/SeRubricGuide';
 import { AiDemoCoach } from './pages/AiDemoCoach';
@@ -125,7 +125,7 @@ const AppRoutes: React.FC = () => {
         element={
           <ProtectedRoute>
             <Layout>
-              <AeDashboard />
+              <SeDashboard />
             </Layout>
           </ProtectedRoute>
         }

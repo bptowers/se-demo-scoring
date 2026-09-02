@@ -7,8 +7,8 @@ export interface ManagerConfig {
   directReports: string[];
 }
 
-/** Sentinel value — manager sees all AEs across all other managers */
-export const ALL_AES_SENTINEL = '__ALL__';
+/** Sentinel value — manager sees all SEs across all other managers */
+export const ALL_SES_SENTINEL = '__ALL__';
 
 export const MANAGERS: ManagerConfig[] = [
   { name: 'Alex Shepherd',          email: 'alex.shepherd@bigchange.com',          region: 'BigChange UK',   directReports: ['Arab Ismail', 'Edan Poole', 'Ellie Sufrin', 'Ellis Whelan', 'Emilio Lavia', 'Harris Tariq', 'Matthew Fryer', 'Oliver Abrahamson', 'Robert Johnson', 'Ryan Oliver'] },
@@ -18,15 +18,15 @@ export const MANAGERS: ManagerConfig[] = [
   { name: 'Daniel Metcalf',         email: 'daniel.metcalf@clockshark.com',        region: 'ClockShark',     directReports: ['Brendan Johns', 'Brian Conry', 'David Nelson', 'Kevin Barry', 'Lianna Banyasz', 'Liz Ruiz', 'Lucas Halligan', 'Max Sciarini', 'Nicholas Mascelli', 'Tyler Atmore'] },
   { name: 'Justin Barlow',          email: 'justin.barlow@simpro.com.au',          region: 'Simpro Group AU', directReports: ['Ash Parrot', 'Calum Griffin', 'Daryus Aden', 'Jean Bouzeid', 'Jonathan Barrett', 'Justin Billie'] },
   { name: 'Milan Kumar',            email: 'milan.kumar@simpro.com',               region: 'Simpro Group NZ', directReports: ['Brian Burke', 'Dan Farinelli', 'Nick Opasinis', 'Nikhil Kalluri', 'Stephen Hasset'] },
-  // Global access — sees all AEs across all regions
-  { name: 'Pete Mansel',            email: 'pete.mansel@simpro.com',               region: 'Global',         directReports: [ALL_AES_SENTINEL] },
-  { name: 'Thilo Schatz',           email: 'thilo.schatz@simpro.us',               region: 'Global',         directReports: [ALL_AES_SENTINEL] },
+  // Global access — sees all SEs across all regions
+  { name: 'Pete Mansel',            email: 'pete.mansel@simpro.com',               region: 'Global',         directReports: [ALL_SES_SENTINEL] },
+  { name: 'Thilo Schatz',           email: 'thilo.schatz@simpro.us',               region: 'Global',         directReports: [ALL_SES_SENTINEL] },
   { name: 'Michael Weinberg',       email: 'michael.weinberg@simpro.com',          region: 'Simpro Group AU', directReports: ['Gabrielle Coakley', 'Joshua Leszko', 'Kate Rothenbuecher', 'Kieran Davies', 'Leone Southton', 'Mark Bentley', 'Tien Trinh'] },
   { name: 'Jason Smith',            email: 'jason.smith@simprogroup.com',          region: 'Global',         directReports: ['Rob Inman', 'Rob Greer', 'Rob Sanders', 'Amer Sharief', 'Sheryl Bacor', 'Heather Maxwell', 'Melissa Jones'] },
-  // Global access — sees all AEs across all regions
-  { name: 'Brad Towers',            email: 'brad.towers@simprogroup.com',          region: 'Global',         directReports: [ALL_AES_SENTINEL] },
-  { name: 'Fred Voccola',           email: 'fred.voccola@simprogroup.com',         region: 'Global',         directReports: [ALL_AES_SENTINEL] },
-  { name: 'Frank Tisellano',        email: 'frank.tisellano@simprogroup.com',      region: 'Global',         directReports: [ALL_AES_SENTINEL] },
+  // Global access — sees all SEs across all regions
+  { name: 'Brad Towers',            email: 'brad.towers@simprogroup.com',          region: 'Global',         directReports: [ALL_SES_SENTINEL] },
+  { name: 'Fred Voccola',           email: 'fred.voccola@simprogroup.com',         region: 'Global',         directReports: [ALL_SES_SENTINEL] },
+  { name: 'Frank Tisellano',        email: 'frank.tisellano@simprogroup.com',      region: 'Global',         directReports: [ALL_SES_SENTINEL] },
 ];
 
 export const getManagerConfig = (email: string | null | undefined): ManagerConfig | null =>
@@ -34,12 +34,12 @@ export const getManagerConfig = (email: string | null | undefined): ManagerConfi
 
 /**
  * Returns the effective direct reports for a manager.
- * Managers with ALL_AES_SENTINEL get a deduplicated union of all other managers' AEs.
+ * Managers with ALL_SES_SENTINEL get a deduplicated union of all other managers' SEs.
  */
 export function getDirectReports(config: ManagerConfig): string[] {
-  if (!config.directReports.includes(ALL_AES_SENTINEL)) return config.directReports;
+  if (!config.directReports.includes(ALL_SES_SENTINEL)) return config.directReports;
   const all = MANAGERS
-    .filter(m => !m.directReports.includes(ALL_AES_SENTINEL))
+    .filter(m => !m.directReports.includes(ALL_SES_SENTINEL))
     .flatMap(m => m.directReports);
   return [...new Set(all)];
 }

@@ -3,7 +3,7 @@ import {
   Users, ChevronRight, ArrowLeft, Globe, BarChart2, Phone,
   TrendingUp, Award, ChevronDown, ChevronUp, ExternalLink, PenLine,
 } from 'lucide-react';
-import { ManagerConfig, getDirectReports, ALL_AES_SENTINEL } from '../config/managerConfig';
+import { ManagerConfig, getDirectReports, ALL_SES_SENTINEL } from '../config/managerConfig';
 import { DemoSession } from '../types';
 import { DemoScoringApp } from './DemoScoringApp';
 import { AeSessionScorecard } from '../components/AeSessionScorecard';
@@ -121,7 +121,7 @@ const TeamDashboard: React.FC<{
 }> = ({ managerConfig, allSessions, onViewSession, onScoreCall }) => {
   const [expandedAe, setExpandedAe] = useState<string | null>(null);
   const directReports = getDirectReports(managerConfig);
-  const hasGlobalAccess = managerConfig.directReports.includes(ALL_AES_SENTINEL);
+  const hasGlobalAccess = managerConfig.directReports.includes(ALL_SES_SENTINEL);
 
   const aeRows: AeRow[] = useMemo(() => {
     const filtered = hasGlobalAccess
@@ -294,7 +294,7 @@ const ScoringScreen: React.FC<{
 }> = ({ managerConfig, onBack }) => {
   const [selectedAE, setSelectedAE] = useState<string>('');
   const [scoring, setScoring] = useState(false);
-  const aeList = getDirectReports(managerConfig);
+  const seList = getDirectReports(managerConfig);
 
   if (scoring) {
     return (
@@ -340,7 +340,7 @@ const ScoringScreen: React.FC<{
               className="w-full p-3 border border-slate-300 rounded-lg text-brand-navy font-medium focus:outline-none focus:border-brand-yellow bg-white"
             >
               <option value="">Select an SE...</option>
-              {aeList.map((ae) => (
+              {seList.map((ae) => (
                 <option key={ae} value={ae}>{ae}</option>
               ))}
             </select>
@@ -357,7 +357,7 @@ const ScoringScreen: React.FC<{
       </div>
 
       <p className="text-center text-xs text-slate-400 mt-6">
-        {aeList.length} SE{aeList.length !== 1 ? 's' : ''} available
+        {seList.length} SE{seList.length !== 1 ? 's' : ''} available
       </p>
     </div>
   );

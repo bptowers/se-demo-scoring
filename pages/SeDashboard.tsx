@@ -18,7 +18,7 @@ import { DemoSession, SCORING_RUBRIC } from '../types';
 import { AeSessionScorecard } from '../components/AeSessionScorecard';
 import { SeCallScorecard } from '../components/SeCallScorecard';
 import { SAMPLE_SE_SESSION } from '../utils/sampleSeSession';
-import { getManagerConfig, getDirectReports, ALL_AES_SENTINEL } from '../config/managerConfig';
+import { getManagerConfig, getDirectReports, ALL_SES_SENTINEL } from '../config/managerConfig';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -175,8 +175,8 @@ interface SeComparisonRow {
   count: number;
 }
 
-const SeComparisonChart: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> = ({ sessions, aeNames }) => {
-  const data: SeComparisonRow[] = aeNames
+const SeComparisonChart: React.FC<{ sessions: DemoSession[]; seNames: string[] }> = ({ sessions, seNames }) => {
+  const data: SeComparisonRow[] = seNames
     .map(name => {
       const seSessions = [...sessions.filter(s => s.callDeliveredBy === name)]
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
@@ -256,7 +256,7 @@ const getBarColor = (pct: number) => {
   return 'bg-red-500';
 };
 
-const AeCriterionRadar: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) => {
+const CriterionRadar: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) => {
   // Support both SE rubric (seScoring) and AE rubric (aiScoring) sessions
   const seSessions = sessions.filter(s => !!s.seScoring);
   const aiSessions = sessions.filter(s => !!s.aiScoring);
@@ -390,9 +390,9 @@ const getCellTextColor = (pct: number | null): string => {
   return '#7f1d1d';
 };
 
-const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> = ({ sessions, aeNames }) => {
+const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; seNames: string[] }> = ({ sessions, seNames }) => {
   const seSessions = sessions.filter(s => !!s.seScoring?.evaluations?.[0]?.category_scores?.length);
-  if (seSessions.length === 0 || aeNames.length < 2) return null;
+  if (seSessions.length === 0 || seNames.length < 2) return null;
 
   // Normalise old category names to their current equivalents before collecting
   const seenCats = new Set<string>();
@@ -404,7 +404,7 @@ const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> 
   const categories = CANONICAL_SE_CATEGORY_ORDER.filter(c => seenCats.has(c));
 
   const cellData: Record<string, Record<string, number | null>> = {};
-  for (const name of aeNames) {
+  for (const name of seNames) {
     cellData[name] = {};
     const forSe = seSessions.filter(s => s.callDeliveredBy === name);
     for (const cat of categories) {
@@ -419,7 +419,7 @@ const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> 
     }
   }
 
-  const visibleNames = aeNames.filter(n => Object.values(cellData[n]).some(v => v !== null));
+  const visibleNames = seNames.filter(n => Object.values(cellData[n]).some(v => v !== null));
   if (visibleNames.length < 2 || categories.length === 0) return null;
 
   const tableW = HEATMAP_NAME_W + categories.length * HEATMAP_CELL_W;
@@ -615,8 +615,8 @@ const ValueTrendChart: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) =>
 };
 
 /** Per-SE Value Articulation comparison — managers viewing all SEs. */
-const ValueComparisonChart: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> = ({ sessions, aeNames }) => {
-  const data = aeNames
+const ValueComparisonChart: React.FC<{ sessions: DemoSession[]; seNames: string[] }> = ({ sessions, seNames }) => {
+  const data = seNames
     .map(name => {
       const avg = getAverageValueArticulation(sessions.filter(s => s.callDeliveredBy === name));
       return avg ? { name, pct: avg.pct, count: avg.count } : null;
@@ -656,10 +656,10 @@ const ValueComparisonChart: React.FC<{ sessions: DemoSession[]; aeNames: string[
 const ValueArticulationPanel: React.FC<{
   sessions: DemoSession[];
   allSessions: DemoSession[];
-  aeNames: string[];
+  seNames: string[];
   showPerSe: boolean;
-  selectedAe: string;
-}> = ({ sessions, allSessions, aeNames, showPerSe, selectedAe }) => {
+  selectedSe: string;
+}> = ({ sessions, allSessions, seNames, showPerSe, selectedSe }) => {
   const avg = getAverageValueArticulation(sessions);
   if (!avg) return null;
 
@@ -667,7 +667,7 @@ const ValueArticulationPanel: React.FC<{
     <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
       <div className="flex items-start justify-between gap-4 mb-1">
         <h2 className="text-base font-bold text-brand-navy">
-          Value Articulation — is the demo explaining the WHY?{selectedAe !== 'all' ? ` — ${selectedAe}` : ''}
+          Value Articulation — is the demo explaining the WHY?{selectedSe !== 'all' ? ` — ${selectedSe}` : ''}
         </h2>
         <span className="text-xs text-gray-400 flex-shrink-0 mt-0.5">
           {avg.count} call{avg.count !== 1 ? 's' : ''}
@@ -727,7 +727,7 @@ const ValueArticulationPanel: React.FC<{
       {showPerSe && (
         <div className="mt-6 pt-5 border-t border-slate-100">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wide mb-3">Value Articulation by SE</h3>
-          <ValueComparisonChart sessions={allSessions} aeNames={aeNames} />
+          <ValueComparisonChart sessions={allSessions} seNames={seNames} />
         </div>
       )}
     </div>
@@ -833,13 +833,13 @@ const CallHistoryTable: React.FC<{
 
 // ─── Main Export ──────────────────────────────────────────────────────────────
 
-export const AeDashboard: React.FC = () => {
+export const SeDashboard: React.FC = () => {
   const { user } = useAuth();
   const [sessions, setSessions] = useState<DemoSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedSession, setSelectedSession] = useState<DemoSession | null>(null);
-  const [selectedAe, setSelectedAe] = useState<string>('all');
+  const [selectedSe, setSelectedAe] = useState<string>('all');
 
   const managerConfig = getManagerConfig(user?.email);
   const isManager = !!managerConfig;
@@ -862,7 +862,7 @@ export const AeDashboard: React.FC = () => {
           }
           const reports = getDirectReports(managerConfig!);
           const reportsLower = reports.map(r => r.toLowerCase());
-          all = managerConfig!.directReports.includes(ALL_AES_SENTINEL)
+          all = managerConfig!.directReports.includes(ALL_SES_SENTINEL)
             ? merged
             : merged.filter(s => reportsLower.includes((s.callDeliveredBy || '').toLowerCase()));
         } else {
@@ -927,10 +927,10 @@ export const AeDashboard: React.FC = () => {
     setSessions(prev => prev.filter(s => s.id !== session.id));
   };
 
-  const aeNames = [...new Set(sessions.map(s => s.callDeliveredBy || '').filter(Boolean))].sort();
+  const seNames = [...new Set(sessions.map(s => s.callDeliveredBy || '').filter(Boolean))].sort();
 
   const sorted = [...sessions]
-    .filter(s => selectedAe === 'all' || s.callDeliveredBy === selectedAe)
+    .filter(s => selectedSe === 'all' || s.callDeliveredBy === selectedSe)
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   const scorePcts = sorted.map(getSessionScorePct);
   const avgScore = scorePcts.length > 0 ? Math.round(scorePcts.reduce((a, b) => a + b, 0) / scorePcts.length) : 0;
@@ -947,8 +947,8 @@ export const AeDashboard: React.FC = () => {
             <BarChart2 className="w-7 h-7" /> SE Demo Dashboard
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            {isManager && selectedAe !== 'all'
-              ? `${selectedAe} · ${sorted.length} call${sorted.length !== 1 ? 's' : ''} scored`
+            {isManager && selectedSe !== 'all'
+              ? `${selectedSe} · ${sorted.length} call${sorted.length !== 1 ? 's' : ''} scored`
               : user?.displayName
                 ? `${user.displayName} · ${sorted.length} call${sorted.length !== 1 ? 's' : ''} scored`
                 : `${sorted.length} call${sorted.length !== 1 ? 's' : ''} scored`}
@@ -971,21 +971,21 @@ export const AeDashboard: React.FC = () => {
       </div>
 
       {/* SE Selector — managers only */}
-      {isManager && aeNames.length > 0 && (
+      {isManager && seNames.length > 0 && (
         <div className="flex items-center gap-3 bg-white rounded-lg border border-slate-200 px-4 py-3">
           <Users size={16} className="text-slate-400 flex-shrink-0" />
           <label className="text-sm font-medium text-slate-600 flex-shrink-0">Viewing:</label>
           <select
-            value={selectedAe}
+            value={selectedSe}
             onChange={e => setSelectedAe(e.target.value)}
             className="border border-slate-200 rounded-lg text-sm px-3 py-1.5 focus:outline-none focus:border-brand-navy bg-white"
           >
             <option value="all">All SEs</option>
-            {aeNames.map(name => (
+            {seNames.map(name => (
               <option key={name} value={name}>{name}</option>
             ))}
           </select>
-          {selectedAe !== 'all' && (
+          {selectedSe !== 'all' && (
             <button
               onClick={() => setSelectedAe('all')}
               className="ml-auto text-xs text-slate-400 hover:text-brand-navy transition-colors"
@@ -1038,9 +1038,9 @@ export const AeDashboard: React.FC = () => {
       <ValueArticulationPanel
         sessions={sorted}
         allSessions={sessions}
-        aeNames={aeNames}
-        showPerSe={isManager && selectedAe === 'all' && aeNames.length > 1}
-        selectedAe={selectedAe}
+        seNames={seNames}
+        showPerSe={isManager && selectedSe === 'all' && seNames.length > 1}
+        selectedSe={selectedSe}
       />
 
       {/* Skill Profile Radar */}
@@ -1048,26 +1048,26 @@ export const AeDashboard: React.FC = () => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-bold text-brand-navy">
-              Skill Profile{selectedAe !== 'all' ? ` — ${selectedAe}` : ''}
+              Skill Profile{selectedSe !== 'all' ? ` — ${selectedSe}` : ''}
             </h2>
             <span className="text-xs text-gray-400">
               {sorted.filter(s => !!s.aiScoring || !!s.seScoring).length} call{sorted.filter(s => !!s.aiScoring || !!s.seScoring).length !== 1 ? 's' : ''} analysed · avg % of criterion max
             </span>
           </div>
-          <AeCriterionRadar sessions={sorted} />
+          <CriterionRadar sessions={sorted} />
         </div>
       )}
 
       {/* Trend Chart */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
         <h2 className="text-base font-bold text-brand-navy mb-4">
-          Score Trend{selectedAe !== 'all' ? ` — ${selectedAe}` : ''}
+          Score Trend{selectedSe !== 'all' ? ` — ${selectedSe}` : ''}
         </h2>
         <TrendChart sessions={sorted} />
       </div>
 
       {/* Team Comparison Chart — managers viewing all SEs */}
-      {isManager && selectedAe === 'all' && aeNames.length > 1 && (
+      {isManager && selectedSe === 'all' && seNames.length > 1 && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-base font-bold text-brand-navy">Team Score Comparison</h2>
@@ -1081,18 +1081,18 @@ export const AeDashboard: React.FC = () => {
             </div>
           </div>
           <p className="text-xs text-gray-400 mb-4">Sorted by average · dots show most recent call · green line = pass threshold</p>
-          <SeComparisonChart sessions={sessions} aeNames={aeNames} />
+          <SeComparisonChart sessions={sessions} seNames={seNames} />
         </div>
       )}
 
       {/* Category Heatmap — managers viewing all SEs */}
-      {isManager && selectedAe === 'all' && aeNames.length > 1 && (
+      {isManager && selectedSe === 'all' && seNames.length > 1 && (
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
           <div className="flex items-center justify-between mb-1">
             <h2 className="text-base font-bold text-brand-navy">Team Category Heatmap</h2>
           </div>
           <p className="text-xs text-gray-400 mb-5">Avg % of max per category · hover a cell for details</p>
-          <CategoryHeatmap sessions={sessions} aeNames={aeNames} />
+          <CategoryHeatmap sessions={sessions} seNames={seNames} />
         </div>
       )}
 
