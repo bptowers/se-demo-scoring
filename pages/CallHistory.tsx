@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Search, Filter, ExternalLink, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { getManagerConfig, getDirectReports, ALL_AES_SENTINEL } from '../config/managerConfig';
-import { getAeSessionsForManager, getAeSessionsByName, getUserEvaluations, deleteEvaluation } from '../services/firestoreService';
+import { getSeSessionsForManager, getSeSessionsByName, getUserEvaluations, deleteEvaluation } from '../services/firestoreService';
 import { deleteEvaluationAsManager } from '../services/adminService';
 import { calculateTotalScore, getScoreInterpretation, getInterpretationLabel, getInterpretationColor, getBdrGrade, getBdrGradeLabel, getBdrGradeColor } from '../utils/scoringHelpers';
 import { DemoSession, SCORING_RUBRIC, BDR_SCORING_RUBRIC } from '../types';
@@ -38,10 +38,10 @@ export const CallHistory: React.FC = () => {
         setLoading(true);
         let data: DemoSession[];
         if (isManager) {
-          // Fetch from aeSessions (dual-written on completion) AND the manager's own
+          // Fetch from the SE sessions collection (dual-written on completion) AND the manager's own
           // user subcollection (covers sessions scored before dual-write was added)
           const [fromCollection, fromOwn] = await Promise.all([
-            getAeSessionsForManager(),
+            getSeSessionsForManager(),
             getUserEvaluations(user.uid),
           ]);
           // Merge and deduplicate by session ID
@@ -59,7 +59,7 @@ export const CallHistory: React.FC = () => {
         } else {
           const [ownSessions, scoredForMe] = await Promise.all([
             getUserEvaluations(user.uid),
-            user.displayName ? getAeSessionsByName(user.displayName) : Promise.resolve([] as DemoSession[]),
+            user.displayName ? getSeSessionsByName(user.displayName) : Promise.resolve([] as DemoSession[]),
           ]);
           const merged = [...ownSessions];
           const seen = new Set(merged.map(s => s.id));

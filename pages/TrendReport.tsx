@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getUserEvaluations, getBdrSessionsForManager, getAeSessionsByName } from '../services/firestoreService';
+import { getUserEvaluations, getBdrSessionsForManager, getSeSessionsByName } from '../services/firestoreService';
 import { DemoSession, ScorerProfile, SCORING_RUBRIC, BDR_SCORING_RUBRIC, ScoringRubricType } from '../types';
 import { format, subDays } from 'date-fns';
 import {
@@ -94,7 +94,7 @@ export const TrendReport: React.FC = () => {
 
         const [ownData, scoredForMe] = await Promise.all([
           getUserEvaluations(user.uid, { startDate, orderBy: 'completedAt' }),
-          user.displayName ? getAeSessionsByName(user.displayName) : Promise.resolve([] as DemoSession[]),
+          user.displayName ? getSeSessionsByName(user.displayName) : Promise.resolve([] as DemoSession[]),
         ]);
         const mergedOwn = [...ownData];
         const seenIds = new Set(mergedOwn.map(e => e.id));

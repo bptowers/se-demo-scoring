@@ -36,6 +36,15 @@ const getCompletedSessionScore = (session: DemoSession): number | null => {
   return null;
 };
 
+// NAMING NOTE:
+// This app scores Sales Engineers (SEs). It was cloned from an AE scoring app, so the
+// Firestore collection is still called `aeSessions` — that string is the live data location
+// holding every SE session, so it is deliberately NOT renamed. Renaming it would require
+// migrating the documents, firestore.rules and the deleteEvaluationAsManager Cloud Function
+// together. Everything in the app layer uses SE naming.
+// Separately, `aiScoring` / `aiV2` / `rubricVersion: 'AE_V1' | 'AE_V2'` are genuinely the
+// legacy AE rubrics and are correctly named.
+
 // BDR ACCESS CONTROL NOTE:
 // Sessions with rubricType === 'BDR' are restricted to the BDR team and their manager.
 // See config/bdrUsers.ts for the authorised list.
@@ -121,11 +130,11 @@ export const saveEvaluation = async (userId: string, session: DemoSession): Prom
       await setDoc(bdrRef, sessionToFirestore(session));
     }
 
-    // Dual-write AI-scored AE sessions to top-level collection for manager queries
+    // Dual-write AI-scored SE sessions to top-level collection for manager queries
     // Include both 'complete' and 'scoring' (AI_ONLY completes immediately; HYBRID stays 'scoring')
     if (session.rubricType !== 'BDR' && (session.status === 'complete' || session.status === 'scoring') && (session.aiScoring || session.aiV2 || session.seScoring)) {
-      const aeRef = doc(db, 'aeSessions', session.id);
-      await setDoc(aeRef, sessionToFirestore(session));
+      const seRef = doc(db, 'aeSessions', session.id);
+      await setDoc(seRef, sessionToFirestore(session));
     }
 
     console.log('Evaluation saved successfully:', session.id);
@@ -415,13 +424,16 @@ export const getBdrSessionsForManager = async (): Promise<DemoSession[]> => {
 };
 
 /**
- * Get all AE sessions across the whole team — for AE managers only.
- * Reads from the top-level aeSessions collection (dual-written on completion).
+ * Get all SE sessions across the whole team — for SE managers only.
+ * Reads from the top-level `aeSessions` collection (dual-written on completion). That
+ * collection name is a legacy of the AE app this was cloned from; it holds SE sessions and
+ * is NOT renamed here because the name is the live data location — see the note at the top
+ * of this file.
  * Client filters by callDeliveredBy against the manager's direct reports list.
  * Caller must verify getManagerConfig() before calling this function.
- * @returns Array of AE DemoSessions, sorted newest first
+ * @returns Array of SE DemoSessions, sorted newest first
  */
-export const getAeSessionsForManager = async (): Promise<DemoSession[]> => {
+export const getSeSessionsForManager = async (): Promise<DemoSession[]> => {
   if (!isFirebaseConfigured()) {
     console.log('Firestore not configured, returning empty array in demo mode');
     return [];
@@ -433,8 +445,8 @@ export const getAeSessionsForManager = async (): Promise<DemoSession[]> => {
   }
 
   try {
-    const aeRef = collection(db, 'aeSessions');
-    const q = query(aeRef, orderBy('createdAt', 'desc'));
+    const seRef = collection(db, 'aeSessions');
+    const q = query(seRef, orderBy('createdAt', 'desc'));
     const querySnapshot = await getDocs(q);
     const sessions: DemoSession[] = [];
 
@@ -444,34 +456,34 @@ export const getAeSessionsForManager = async (): Promise<DemoSession[]> => {
 
     return forReporting(sessions);
   } catch (error) {
-    console.error('Error getting AE sessions for manager:', error);
+    console.error('Error getting SE sessions for manager:', error);
     throw error;
   }
 };
 
 /**
- * Get all AE sessions from the top-level collection where callDeliveredBy matches a name.
+ * Get all SE sessions from the top-level collection where callDeliveredBy matches a name.
  * Used so SEs can see calls scored on their behalf by a manager.
  */
-export const getAeSessionsByName = async (name: string): Promise<DemoSession[]> => {
+export const getSeSessionsByName = async (name: string): Promise<DemoSession[]> => {
   if (!isFirebaseConfigured()) return [];
   const db = getFirebaseFirestore();
   if (!db) throw new Error('Firestore is not initialized');
   try {
-    const aeRef = collection(db, 'aeSessions');
+    const seRef = collection(db, 'aeSessions');
     // Match every spelling this SE's calls may be stored under. Firestore equality is
     // case-sensitive and exact, so querying the display name alone would miss their own
     // calls filed as e.g. 'Tom Worcester' instead of 'Thomas Worcester'.
     const variants = seNameVariants(name);
     const q = variants.length > 1
-      ? query(aeRef, where('callDeliveredBy', 'in', variants))
-      : query(aeRef, where('callDeliveredBy', '==', name));
+      ? query(seRef, where('callDeliveredBy', 'in', variants))
+      : query(seRef, where('callDeliveredBy', '==', name));
     const querySnapshot = await getDocs(q);
     const sessions: DemoSession[] = [];
     querySnapshot.forEach((docSnap) => sessions.push(firestoreToSession(docSnap.data())));
     return forReporting(sessions);
   } catch (error) {
-    console.error('Error getting AE sessions by name:', error);
+    console.error('Error getting SE sessions by name:', error);
     throw error;
   }
 };

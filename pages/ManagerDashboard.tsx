@@ -8,7 +8,7 @@ import { DemoSession } from '../types';
 import { DemoScoringApp } from './DemoScoringApp';
 import { AeSessionScorecard } from '../components/AeSessionScorecard';
 import { SeCallScorecard } from '../components/SeCallScorecard';
-import { getAeSessionsForManager } from '../services/firestoreService';
+import { getSeSessionsForManager } from '../services/firestoreService';
 import {
   getScoreInterpretation,
   getInterpretationLabel,
@@ -381,7 +381,7 @@ export const ManagerDashboard: React.FC<ManagerDashboardProps> = ({ managerConfi
     setError(null);
     (async () => {
       try {
-        const all = await getAeSessionsForManager();
+        const all = await getSeSessionsForManager();
         setSessions(all);
       } catch (e) {
         console.error(e);

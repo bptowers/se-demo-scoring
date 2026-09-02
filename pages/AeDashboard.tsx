@@ -7,7 +7,7 @@ import {
 import { Phone, BarChart2, TrendingUp, Award, ExternalLink, History, Users, Trash2, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getUserEvaluations, getAeSessionsForManager, getAeSessionsByName, deleteEvaluation } from '../services/firestoreService';
+import { getUserEvaluations, getSeSessionsForManager, getSeSessionsByName, deleteEvaluation } from '../services/firestoreService';
 import { deleteEvaluationAsManager } from '../services/adminService';
 import {
   getScoreInterpretation, getInterpretationLabel, getInterpretationColor,
@@ -852,7 +852,7 @@ export const AeDashboard: React.FC = () => {
         let all: DemoSession[];
         if (isManager) {
           const [fromCollection, fromOwn] = await withTimeout(Promise.all([
-            getAeSessionsForManager(),
+            getSeSessionsForManager(),
             getUserEvaluations(user.uid),
           ]));
           const merged = [...fromCollection];
@@ -868,7 +868,7 @@ export const AeDashboard: React.FC = () => {
         } else {
           const [ownSessions, scoredForMe] = await withTimeout(Promise.all([
             getUserEvaluations(user.uid),
-            user.displayName ? getAeSessionsByName(user.displayName) : Promise.resolve([] as DemoSession[]),
+            user.displayName ? getSeSessionsByName(user.displayName) : Promise.resolve([] as DemoSession[]),
           ]));
           const merged = [...ownSessions];
           const seen = new Set(merged.map(s => s.id));

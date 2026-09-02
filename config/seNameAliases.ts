@@ -39,7 +39,7 @@ export const canonicalSeName = (name: string | null | undefined): string => {
 /**
  * Every spelling this SE's calls may be stored under, for Firestore equality queries.
  *
- * Needed because `getAeSessionsByName` matches `callDeliveredBy` server-side and Firestore
+ * Needed because `getSeSessionsByName` matches `callDeliveredBy` server-side and Firestore
  * string equality is case-sensitive: querying only the signed-in user's display name would
  * silently miss calls filed under one of their other spellings.
  */
