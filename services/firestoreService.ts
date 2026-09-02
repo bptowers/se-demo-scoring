@@ -13,6 +13,7 @@ import {
 } from 'firebase/firestore';
 import { getFirebaseFirestore, isFirebaseConfigured } from './firebase';
 import { DemoSession } from '../types';
+import { excludeFromReporting } from '../config/reportingExclusions';
 
 const getCompletedSessionScore = (session: DemoSession): number | null => {
   if (session.seScoring?.evaluations?.[0]) {
@@ -216,7 +217,8 @@ export const getUserEvaluations = async (
       evaluations.push(firestoreToSession(doc.data()));
     });
 
-    return evaluations;
+    // Reporting exclusions are applied on read, in one place, so no caller can forget them.
+    return excludeFromReporting(evaluations);
   } catch (error) {
     console.error('Error getting user evaluations:', error);
     throw error;
@@ -433,7 +435,7 @@ export const getAeSessionsForManager = async (): Promise<DemoSession[]> => {
       sessions.push(firestoreToSession(docSnap.data()));
     });
 
-    return sessions;
+    return excludeFromReporting(sessions);
   } catch (error) {
     console.error('Error getting AE sessions for manager:', error);
     throw error;
@@ -454,7 +456,7 @@ export const getAeSessionsByName = async (name: string): Promise<DemoSession[]> 
     const querySnapshot = await getDocs(q);
     const sessions: DemoSession[] = [];
     querySnapshot.forEach((docSnap) => sessions.push(firestoreToSession(docSnap.data())));
-    return sessions;
+    return excludeFromReporting(sessions);
   } catch (error) {
     console.error('Error getting AE sessions by name:', error);
     throw error;
