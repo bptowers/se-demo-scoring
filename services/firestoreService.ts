@@ -14,6 +14,14 @@ import {
 import { getFirebaseFirestore, isFirebaseConfigured } from './firebase';
 import { DemoSession } from '../types';
 import { excludeFromReporting } from '../config/reportingExclusions';
+import { canonicaliseSessionNames, seNameVariants } from '../config/seNameAliases';
+
+/**
+ * Single normalisation applied to every session read: drop excluded names, then collapse
+ * alias spellings onto one canonical name. Centralised here so no page can skip it.
+ */
+const forReporting = (sessions: DemoSession[]): DemoSession[] =>
+  canonicaliseSessionNames(excludeFromReporting(sessions));
 
 const getCompletedSessionScore = (session: DemoSession): number | null => {
   if (session.seScoring?.evaluations?.[0]) {
@@ -217,8 +225,7 @@ export const getUserEvaluations = async (
       evaluations.push(firestoreToSession(doc.data()));
     });
 
-    // Reporting exclusions are applied on read, in one place, so no caller can forget them.
-    return excludeFromReporting(evaluations);
+    return forReporting(evaluations);
   } catch (error) {
     console.error('Error getting user evaluations:', error);
     throw error;
@@ -435,7 +442,7 @@ export const getAeSessionsForManager = async (): Promise<DemoSession[]> => {
       sessions.push(firestoreToSession(docSnap.data()));
     });
 
-    return excludeFromReporting(sessions);
+    return forReporting(sessions);
   } catch (error) {
     console.error('Error getting AE sessions for manager:', error);
     throw error;
@@ -452,11 +459,17 @@ export const getAeSessionsByName = async (name: string): Promise<DemoSession[]> 
   if (!db) throw new Error('Firestore is not initialized');
   try {
     const aeRef = collection(db, 'aeSessions');
-    const q = query(aeRef, where('callDeliveredBy', '==', name));
+    // Match every spelling this SE's calls may be stored under. Firestore equality is
+    // case-sensitive and exact, so querying the display name alone would miss their own
+    // calls filed as e.g. 'Tom Worcester' instead of 'Thomas Worcester'.
+    const variants = seNameVariants(name);
+    const q = variants.length > 1
+      ? query(aeRef, where('callDeliveredBy', 'in', variants))
+      : query(aeRef, where('callDeliveredBy', '==', name));
     const querySnapshot = await getDocs(q);
     const sessions: DemoSession[] = [];
     querySnapshot.forEach((docSnap) => sessions.push(firestoreToSession(docSnap.data())));
-    return excludeFromReporting(sessions);
+    return forReporting(sessions);
   } catch (error) {
     console.error('Error getting AE sessions by name:', error);
     throw error;
