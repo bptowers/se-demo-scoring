@@ -50,6 +50,33 @@ const withTimeout = async <T,>(promise: Promise<T>, timeoutMs = 8000): Promise<T
 const formatDateShort = (d: Date) =>
   new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(d);
 
+/** How many weeks of history the weekly trend charts cover. */
+const TREND_WEEKS = 12;
+
+/**
+ * Monday 00:00 (local) of the week containing `d`.
+ *
+ * Weekly buckets rather than one point per call: calls arrive in bursts — four in a single
+ * afternoon, then nothing for days — so a per-call axis compresses months of history into
+ * whatever few days happened to be busiest, and reads as a trend when it is really just
+ * call ordering.
+ */
+const startOfWeek = (d: Date): Date => {
+  const out = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const mondayOffset = (out.getDay() + 6) % 7; // Sun=0 → 6, Mon=1 → 0
+  out.setDate(out.getDate() - mondayOffset);
+  return out;
+};
+
+/** Adds whole weeks via calendar arithmetic so DST transitions don't drift the boundary. */
+const addWeeks = (d: Date, weeks: number): Date => {
+  const out = new Date(d);
+  out.setDate(out.getDate() + weeks * 7);
+  return out;
+};
+
+const mean = (xs: number[]): number => Math.round(xs.reduce((a, c) => a + c, 0) / xs.length);
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const StatCard: React.FC<{
@@ -473,23 +500,72 @@ const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; aeNames: string[] }> 
 
 // ─── Value Articulation ───────────────────────────────────────────────────────
 
-/** Trend of Value Articulation % against overall score % across recent calls. */
-const ValueTrendChart: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) => {
-  const data = [...sessions]
-    .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-    .map(s => ({ session: s, value: getSessionValueArticulation(s) }))
-    .filter((d): d is { session: DemoSession; value: NonNullable<ReturnType<typeof getSessionValueArticulation>> } => d.value !== null)
-    .slice(-10)
-    .map(d => ({
-      date: formatDateShort(d.session.createdAt),
-      value: d.value.pct,
-      overall: getSessionScorePct(d.session),
-    }));
+interface WeeklyValuePoint {
+  label: string;
+  /** null for a week with no scored calls — Recharts breaks the line rather than inventing one. */
+  value: number | null;
+  overall: number | null;
+  count: number;
+}
 
-  if (data.length < 2) {
+/**
+ * Averages Value Articulation % and overall score % into Monday-start weeks, covering the
+ * last TREND_WEEKS weeks.
+ *
+ * Weeks inside the window with no scored calls are kept as null-valued points, so a quiet
+ * fortnight shows as a genuine gap instead of two busy weeks being drawn adjacent. The series
+ * starts at the first week that actually has data, so a sparse history doesn't open with a
+ * run of empty columns, and always runs to the current week so a recent lull is visible.
+ */
+export const buildWeeklyValueTrend = (
+  sessions: DemoSession[],
+  weeks: number = TREND_WEEKS,
+  now: Date = new Date()
+): WeeklyValuePoint[] => {
+  const scored = sessions
+    .map(s => ({ session: s, value: getSessionValueArticulation(s) }))
+    .filter((d): d is { session: DemoSession; value: NonNullable<ReturnType<typeof getSessionValueArticulation>> } => d.value !== null);
+
+  const currentWeek = startOfWeek(now);
+  const windowStart = addWeeks(currentWeek, -(weeks - 1)).getTime();
+
+  const buckets = new Map<number, { value: number[]; overall: number[] }>();
+  for (const d of scored) {
+    const weekStart = startOfWeek(d.session.createdAt).getTime();
+    if (weekStart < windowStart) continue;
+    const bucket = buckets.get(weekStart) ?? { value: [], overall: [] };
+    bucket.value.push(d.value.pct);
+    bucket.overall.push(getSessionScorePct(d.session));
+    buckets.set(weekStart, bucket);
+  }
+
+  if (buckets.size === 0) return [];
+
+  const points: WeeklyValuePoint[] = [];
+  let cursor = new Date(Math.min(...buckets.keys()));
+  while (cursor.getTime() <= currentWeek.getTime()) {
+    const bucket = buckets.get(cursor.getTime());
+    points.push({
+      label: formatDateShort(cursor),
+      value: bucket ? mean(bucket.value) : null,
+      overall: bucket ? mean(bucket.overall) : null,
+      count: bucket ? bucket.value.length : 0,
+    });
+    cursor = addWeeks(cursor, 1);
+  }
+
+  return points;
+};
+
+/** Weekly trend of Value Articulation % against overall score %. */
+const ValueTrendChart: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) => {
+  const data = buildWeeklyValueTrend(sessions);
+  const weeksWithCalls = data.filter(d => d.value !== null).length;
+
+  if (weeksWithCalls < 2) {
     return (
       <div className="flex items-center justify-center h-[200px] text-sm text-gray-400 text-center px-4">
-        At least two scored calls are needed to show a trend.
+        Scored calls in at least two different weeks are needed to show a trend.
       </div>
     );
   }
@@ -498,7 +574,7 @@ const ValueTrendChart: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) =>
     <ResponsiveContainer width="100%" height={200}>
       <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-        <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#94a3b8' }} />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#94a3b8' }} interval="preserveStartEnd" />
         <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#94a3b8' }} width={30} />
         <Tooltip
           contentStyle={{ fontSize: 12, borderRadius: 8 }}
@@ -506,6 +582,12 @@ const ValueTrendChart: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) =>
             `${v}%`,
             name === 'value' ? 'Value Articulation' : 'Overall Score',
           ]}
+          // The call count matters for reading the point: a 100% week built on one call is not
+          // the same evidence as a 78% week built on six.
+          labelFormatter={(label, payload) => {
+            const count = (payload?.[0]?.payload as WeeklyValuePoint | undefined)?.count ?? 0;
+            return `Week of ${label} · ${count} call${count === 1 ? '' : 's'}`;
+          }}
         />
         <ReferenceLine y={75} stroke="#16a34a" strokeDasharray="4 2" label={{ value: 'Pass', fontSize: 10, fill: '#16a34a', position: 'insideTopRight' }} />
         <Line
@@ -515,6 +597,7 @@ const ValueTrendChart: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) =>
           stroke="#cbd5e1"
           strokeWidth={2}
           dot={{ fill: '#cbd5e1', r: 3 }}
+          connectNulls={false}
         />
         <Line
           type="monotone"
@@ -524,6 +607,7 @@ const ValueTrendChart: React.FC<{ sessions: DemoSession[] }> = ({ sessions }) =>
           strokeWidth={2.5}
           dot={{ fill: '#7c3aed', r: 4 }}
           activeDot={{ r: 6 }}
+          connectNulls={false}
         />
       </LineChart>
     </ResponsiveContainer>
@@ -624,7 +708,9 @@ const ValueArticulationPanel: React.FC<{
         {/* Trend vs overall score */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wide">Trend vs overall score</h3>
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wide">
+              Weekly trend vs overall score
+            </h3>
             <div className="flex items-center gap-4 text-xs text-gray-500">
               <span className="flex items-center gap-1.5">
                 <span className="inline-block w-3 h-0.5 rounded-sm" style={{ backgroundColor: '#7c3aed' }} /> Value
