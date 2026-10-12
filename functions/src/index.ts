@@ -1025,7 +1025,7 @@ Scoring method:
 9. Provide deal risk observations only when supported by the transcript.
 
 Coaching signals:
-For each evaluated SE, fill the coaching_signals object by counting observable moments in the transcript. Count only moments involving the target SE. Each count must be backed by at least one entry in coaching_signals.evidence (signal name, short quote with speaker, one-line note) unless the count is zero. Do not inflate counts; if unsure whether a moment qualifies, leave it out.
+For each evaluated SE, fill coaching_signals by counting observable moments in the transcript. Return it as a JSON-encoded string containing one object with exactly these keys: pain_statements, pains_followed_up, pains_sized, emotional_trigger_questions, buying_signals, buying_signals_followed_up, open_check_ins, closed_check_ins, current_state_comparisons, closing_recaps, off_target_flows, objections_raised, objections_probed, price_positioning, glitch_narration (integers); segment_framing (string); call_control_lost (boolean); next_step_booked (string); and evidence (array of objects with signal, quote and note strings). Count only moments involving the target SE. Each count must be backed by at least one entry in coaching_signals.evidence (signal name, short quote with speaker, one-line note) unless the count is zero. Do not inflate counts; if unsure whether a moment qualifies, leave it out.
 - pain_statements: pains the prospect volunteered while the target SE was leading or present.
 - pains_followed_up: of those, how many got at least one follow-up question from the SE before a feature was shown.
 - pains_sized: pains where the SE asked a sizing question.
@@ -1093,7 +1093,16 @@ const NEXT_STEP_VALUES = ["Yes", "No", "Unclear"] as const;
  * non-negative integers, and "followed up" counts never exceed the count they follow.
  */
 const normalizeCoachingSignals = (raw: any) => {
-  const r = raw && typeof raw === "object" ? raw : {};
+  let parsed = raw;
+  if (typeof raw === "string") {
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return undefined;
+    }
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return undefined;
+  const r = parsed;
   const count = (v: unknown) => clampNumber(v, 0, 999);
   const painStatements = count(r.pain_statements);
   const buyingSignals = count(r.buying_signals);
@@ -1289,48 +1298,9 @@ Return ONLY a valid JSON object matching the requested SE_CALL_SCORECARD_V1 stru
                 required: ["moment_type", "speaker", "evidence", "interpretation"],
               },
             },
-            coaching_signals: {
-              type: Type.OBJECT,
-              properties: {
-                pain_statements: { type: Type.INTEGER },
-                pains_followed_up: { type: Type.INTEGER },
-                pains_sized: { type: Type.INTEGER },
-                emotional_trigger_questions: { type: Type.INTEGER },
-                buying_signals: { type: Type.INTEGER },
-                buying_signals_followed_up: { type: Type.INTEGER },
-                open_check_ins: { type: Type.INTEGER },
-                closed_check_ins: { type: Type.INTEGER },
-                current_state_comparisons: { type: Type.INTEGER },
-                segment_framing: { type: Type.STRING, enum: ["Present", "Partial", "Missing", "Not Applicable"] },
-                closing_recaps: { type: Type.INTEGER },
-                off_target_flows: { type: Type.INTEGER },
-                objections_raised: { type: Type.INTEGER },
-                objections_probed: { type: Type.INTEGER },
-                price_positioning: { type: Type.INTEGER },
-                glitch_narration: { type: Type.INTEGER },
-                call_control_lost: { type: Type.BOOLEAN },
-                next_step_booked: { type: Type.STRING, enum: ["Yes", "No", "Unclear"] },
-                evidence: {
-                  type: Type.ARRAY,
-                  items: {
-                    type: Type.OBJECT,
-                    properties: {
-                      signal: { type: Type.STRING },
-                      quote: { type: Type.STRING },
-                      note: { type: Type.STRING },
-                    },
-                    required: ["signal", "quote", "note"],
-                  },
-                },
-              },
-              required: [
-                "pain_statements", "pains_followed_up", "pains_sized", "emotional_trigger_questions",
-                "buying_signals", "buying_signals_followed_up", "open_check_ins", "closed_check_ins",
-                "current_state_comparisons", "segment_framing", "closing_recaps", "off_target_flows",
-                "objections_raised", "objections_probed", "price_positioning", "glitch_narration",
-                "call_control_lost", "next_step_booked", "evidence",
-              ],
-            },
+            // Kept as a JSON-encoded string: a nested object here pushes the Gemini
+            // response schema past its "too many states" limit. Parsed in normalizeCoachingSignals.
+            coaching_signals: { type: Type.STRING },
             final_manager_summary: { type: Type.STRING },
           },
           required: ["target_se_name", "overall_result", "category_scores", "strengths", "improvement_areas", "coaching_plan", "deal_risk_observations", "notable_moments", "coaching_signals", "final_manager_summary"],
