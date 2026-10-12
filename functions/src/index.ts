@@ -877,7 +877,7 @@ A strong Sales Engineer does not simply demonstrate product features. A strong S
 Simpro coaching framework:
 Simpro coaches SEs on SPIN Selling and a Feature, Benefit, Value demo method, delivered as tell-show-tell. Use these definitions consistently when scoring and when filling coaching_signals:
 - Pain statement: the prospect describes a problem, cost, delay, workaround, or frustration in their current process (e.g. "photos take forever", "we're stretched to keep up", "ConnectWise is a roadblock").
-- DING moment: a pain statement the prospect volunteers. The expected response is at least two follow-up questions before anything is shown: how it happens today, and what it causes. Moving straight to a feature, or replying "awesome" and returning to the demo, is a missed DING moment.
+- Stated pain: a pain statement the prospect volunteers. The expected response is at least two follow-up questions before anything is shown: how it happens today, and what it causes. Moving straight to a feature, or replying "awesome" and returning to the demo, means the stated pain was not followed up.
 - Sizing question: a question that puts a number on the pain (hours per week, jobs, invoices, people affected, money). Example: "How much time does that take each week? What does it cost you if it stays that way?"
 - Emotional trigger: once a pain is surfaced, a question about what it takes the person away from or how they would feel if it were solved. Example: "When does that 10 hours come out of, evenings or weekends?"
 - Buying signal: a positive reaction from the prospect ("that's great", "I like that", "that's gold", "fantastic"). The expected response is a why or impact question: "What about that stands out? How would that change things for your team?" Passive replies ("ok", "ya", "sounds good") are not confirmation.
@@ -903,7 +903,7 @@ Calibration standard: Most competent SEs delivering a professional demo should s
 
 Primary scoring rubric, total maximum 100 points:
 1. Customer Context and Discovery — 15 points.
-   Evaluate: discovery, customer context, current/future state, stakeholders, constraints, success criteria, prior context use, and how the SE responds to pain the prospect volunteers (DING moments, sizing, emotional trigger). SEs are expected to ask pain questions on every call, including demo calls that follow AE discovery.
+   Evaluate: discovery, customer context, current/future state, stakeholders, constraints, success criteria, prior context use, and how the SE responds to pain the prospect volunteers (follow-up on stated pain, sizing, emotional trigger). SEs are expected to ask pain questions on every call, including demo calls that follow AE discovery.
    0-5 pts (Floor): No meaningful discovery; SE proceeds without establishing customer context, pain, or use case.
    6-9 pts (Average): Some discovery questions asked; basic pain or use case surfaced, but questions stay at situation level, volunteered pain gets no follow-up before a feature is shown, or stakeholders, constraints, or success criteria are missing.
    10-12 pts (Strong): Clear customer context established; at least one volunteered pain followed up with two or more questions (how it happens today, what it causes) before anything is shown; success criteria and key stakeholders identified; prior context leveraged where available.

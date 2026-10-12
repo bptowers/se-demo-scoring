@@ -44,8 +44,8 @@ const categoryBelow = (categories: SeCategoryScore[], name: string): boolean => 
 
 export const COACHING_THEMES: CoachingTheme[] = [
   {
-    key: 'ding',
-    label: 'Missed "DING" moments',
+    key: 'stated_pain',
+    label: 'Follow up on stated pain',
     layer: 'Discovery',
     good: 'Every pain the prospect volunteers gets follow-up questions before anything is shown: how it happens today, and what it causes.',
     evaluate: s => s.pain_statements === 0 ? null : (s.pains_followed_up < s.pain_statements ? 'gap' : 'ok'),
