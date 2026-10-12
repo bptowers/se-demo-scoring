@@ -24,6 +24,7 @@ export const MANAGERS: ManagerConfig[] = [
   { name: 'Michael Weinberg',       email: 'michael.weinberg@simpro.com',          region: 'Simpro Group AU', directReports: ['Gabrielle Coakley', 'Joshua Leszko', 'Kate Rothenbuecher', 'Kieran Davies', 'Leone Southton', 'Mark Bentley', 'Tien Trinh'] },
   { name: 'Jason Smith',            email: 'jason.smith@simprogroup.com',          region: 'Global',         directReports: ['Rob Inman', 'Rob Greer', 'Rob Sanders', 'Amer Sharief', 'Sheryl Bacor', 'Heather Maxwell', 'Melissa Jones'] },
   // Global access — sees all SEs across all regions
+  { name: 'Jared Kleinman',         email: 'jared.kleinman@simprogroup.com',       region: 'Global',         directReports: ['George Tobon', 'Thomas Worcester', 'Austin Huddleson', 'Jack Conley'] },
   { name: 'Brad Towers',            email: 'brad.towers@simprogroup.com',          region: 'Global',         directReports: [ALL_SES_SENTINEL] },
   { name: 'Fred Voccola',           email: 'fred.voccola@simprogroup.com',         region: 'Global',         directReports: [ALL_SES_SENTINEL] },
   { name: 'Frank Tisellano',        email: 'frank.tisellano@simprogroup.com',      region: 'Global',         directReports: [ALL_SES_SENTINEL] },

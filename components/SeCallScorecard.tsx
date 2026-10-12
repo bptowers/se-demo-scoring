@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ChevronDown, ChevronUp, Download } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, Download, ClipboardList } from 'lucide-react';
 import { DemoSession } from '../types';
 import { Button } from './Button';
 import { SeCategoryRadar } from './SeCategoryRadar';
 import { SeCoachingSignalsPanel } from './SeCoachingSignalsPanel';
+import { SeManagerCoachingGuide } from './SeManagerCoachingGuide';
+import { useAuth } from '../context/AuthContext';
+import { getManagerConfig } from '../config/managerConfig';
 
 const scoreColor = (pct: number) => {
   if (pct >= 80) return 'text-green-700 bg-green-50 border-green-200';
@@ -106,10 +109,17 @@ export const SeCallScorecard: React.FC<SeCallScorecardProps> = ({
   onBack,
   expandAll = false,
 }) => {
+  const { user } = useAuth();
+  const isManager = !!getManagerConfig(user?.email);
+  const [showManagerGuide, setShowManagerGuide] = useState(false);
   const scorecard = session.seScoring!;
   const evaluation = scorecard.evaluations[0];
   const result = evaluation.overall_result;
   const callSummary = scorecard.call_summary;
+
+  if (showManagerGuide) {
+    return <SeManagerCoachingGuide session={session} onBack={() => setShowManagerGuide(false)} />;
+  }
 
   return (
     <div className="max-w-4xl mx-auto py-6 px-4 space-y-6">
@@ -122,7 +132,12 @@ export const SeCallScorecard: React.FC<SeCallScorecardProps> = ({
             <ArrowLeft size={16} /> Back
           </button>
         )}
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-2">
+          {isManager && (
+            <Button onClick={() => setShowManagerGuide(true)} className="flex items-center gap-1.5">
+              <ClipboardList className="w-4 h-4" /> Manager Coaching Guide
+            </Button>
+          )}
           <Button variant="outline" onClick={() => window.print()} className="flex items-center gap-1.5">
             <Download className="w-4 h-4" /> Download PDF
           </Button>

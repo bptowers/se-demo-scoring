@@ -1431,6 +1431,7 @@ const MANAGERS: ManagerConfigEntry[] = [
   { email: "thilo.schatz@simpro.us",               directReports: [ALL_AES_SENTINEL] },
   { email: "michael.weinberg@simpro.com",          directReports: ["Gabrielle Coakley", "Joshua Leszko", "Kate Rothenbuecher", "Kieran Davies", "Leone Southton", "Mark Bentley", "Tien Trinh"] },
   { email: "jason.smith@simprogroup.com",          directReports: ["Rob Inman", "Rob Greer", "Rob Sanders", "Amer Sharief", "Sheryl Bacor", "Heather Maxwell", "Melissa Jones"] },
+  { email: "jared.kleinman@simprogroup.com",       directReports: ["George Tobon", "Thomas Worcester", "Austin Huddleson", "Jack Conley"] },
   { email: "brad.towers@simprogroup.com",          directReports: [ALL_AES_SENTINEL] },
   { email: "fred.voccola@simprogroup.com",         directReports: [ALL_AES_SENTINEL] },
   { email: "frank.tisellano@simprogroup.com",      directReports: [ALL_AES_SENTINEL] },
