@@ -286,6 +286,42 @@ export interface SeNotableMoment {
   interpretation: string;
 }
 
+export type SeSegmentFraming = 'Present' | 'Partial' | 'Missing' | 'Not Applicable';
+export type SeNextStepBooked = 'Yes' | 'No' | 'Unclear';
+
+export interface SeCoachingSignalEvidence {
+  signal: string;
+  quote: string;
+  note: string;
+}
+
+/**
+ * Behaviour counts from the call, used for the coaching-theme view.
+ * Added with rubric_revision '2026-10-coaching-themes'; older sessions don't have it.
+ */
+export interface SeCoachingSignals {
+  pain_statements: number;
+  pains_followed_up: number;
+  pains_sized: number;
+  emotional_trigger_questions: number;
+  buying_signals: number;
+  buying_signals_followed_up: number;
+  open_check_ins: number;
+  closed_check_ins: number;
+  current_state_comparisons: number;
+  segment_framing: SeSegmentFraming;
+  closing_recaps: number;
+  off_target_flows: number;
+  objections_raised: number;
+  objections_probed: number;
+  price_positioning: number;
+  glitch_narration: number;
+  call_control_lost: boolean;
+  /** Deal-health only. Never affects the SE's score. */
+  next_step_booked: SeNextStepBooked;
+  evidence: SeCoachingSignalEvidence[];
+}
+
 export interface SeEvaluation {
   target_se_name: string;
   overall_result: SeOverallResult;
@@ -295,25 +331,27 @@ export interface SeEvaluation {
   coaching_plan: SeCoachingPlan;
   deal_risk_observations: SeDealRiskObservation[];
   notable_moments: SeNotableMoment[];
+  coaching_signals?: SeCoachingSignals;
   final_manager_summary: string;
 }
 
 export interface SeScorerProfile {
   evaluation_version: 'SE_CALL_SCORECARD_V1';
+  rubric_revision?: string;
   call_summary: SeCallSummary;
   evaluations: SeEvaluation[];
 }
 
 export const SE_SCORING_RUBRIC: ScoringCriterion[] = [
-  { id: 'se_customer_context_discovery', name: 'Customer Context and Discovery', section: 'Core SE Performance', maxPoints: 15, description: 'Understood, explored, and confirmed the customer situation before or during the demo.' },
-  { id: 'se_demo_relevance_storyline', name: 'Demo Relevance and Value Connection', section: 'Core SE Performance', maxPoints: 18, description: "Tailored the demonstration to the customer's workflows and systems, and connected each capability shown to a specific customer outcome rather than demonstrating features generically." },
+  { id: 'se_customer_context_discovery', name: 'Customer Context and Discovery', section: 'Core SE Performance', maxPoints: 15, description: 'Understood, explored, and confirmed the customer situation before or during the demo, and followed up on, sized, and personalised the pain the prospect volunteered.' },
+  { id: 'se_demo_relevance_storyline', name: 'Demo Relevance and Value Connection', section: 'Core SE Performance', maxPoints: 18, description: "Framed their own demo segment (tell-show-tell), tailored a day-in-the-life flow to the customer's trade, workflows and systems, and connected each capability shown to a stated pain or outcome." },
   { id: 'se_product_technical_credibility', name: 'Product and Technical Credibility', section: 'Core SE Performance', maxPoints: 15, description: 'Explained product and technical behavior accurately, credibly, and at appropriate depth.' },
   { id: 'se_operational_fit_adoption', name: 'Operational Fit and Adoption Readiness', section: 'Business Fit', maxPoints: 10, description: 'Connected the solution to workflows, roles, systems, implementation, governance, and adoption reality.' },
-  { id: 'se_value_business_impact', name: 'Value and Business Impact', section: 'Business Fit', maxPoints: 10, description: 'Translated capability into customer-specific commercial or operational value.' },
-  { id: 'se_engagement_listening', name: 'Customer Engagement and Active Listening', section: 'Conversation Quality', maxPoints: 10, description: 'Created a responsive two-way customer conversation and adjusted to customer input.' },
+  { id: 'se_value_business_impact', name: 'Value and Business Impact', section: 'Business Fit', maxPoints: 10, description: 'Translated capability into customer-specific value using Feature, Benefit, Value, compared against how the customer works today.' },
+  { id: 'se_engagement_listening', name: 'Customer Engagement and Active Listening', section: 'Conversation Quality', maxPoints: 10, description: 'Created a responsive two-way conversation with open check-ins, followed up on buying signals, and redirected the call when it drifted.' },
   { id: 'se_buyer_centric_language', name: 'Buyer-Centric Demo Language', section: 'Conversation Quality', maxPoints: 5, description: 'Used you/your language to help the customer imagine themselves operating the solution.' },
   { id: 'se_communication_presence', name: 'Communication and Executive Presence', section: 'Conversation Quality', maxPoints: 6, description: 'Communicated clearly, concisely, professionally, and credibly.' },
-  { id: 'se_objection_risk_handling', name: 'Objection, Concern, and Risk Handling', section: 'Deal Advancement', maxPoints: 7, description: 'Handled concerns, validation needs, and risks directly and constructively.' },
+  { id: 'se_objection_risk_handling', name: 'Objection, Concern, and Risk Handling', section: 'Deal Advancement', maxPoints: 7, description: 'Probed concerns and roadblocks before answering, and positioned against the cost of the current process rather than price.' },
   { id: 'se_call_leadership_next_steps', name: 'Call Support, Collaboration, and Technical Follow-through', section: 'Deal Advancement', maxPoints: 4, description: "Supported the AE's call structure, managed technical transitions cleanly, and owned any open technical items with a clear resolution path. Commercial and scheduling next steps are the AE's responsibility and are not scored here." },
 ];
 

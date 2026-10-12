@@ -19,6 +19,7 @@ import { AeSessionScorecard } from '../components/AeSessionScorecard';
 import { SeCallScorecard } from '../components/SeCallScorecard';
 import { SAMPLE_SE_SESSION } from '../utils/sampleSeSession';
 import { getManagerConfig, getDirectReports, ALL_SES_SENTINEL } from '../config/managerConfig';
+import { COACHING_THEMES, ThemeTally, tallyThemes } from '../utils/seCoachingThemes';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -493,6 +494,92 @@ const CategoryHeatmap: React.FC<{ sessions: DemoSession[]; seNames: string[] }> 
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#fed7aa', border: '1px solid #fdba74' }} /> 60–74%</span>
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#fecaca', border: '1px solid #fca5a5' }} /> &lt;60%</span>
         <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }} /> No data</span>
+      </div>
+    </div>
+  );
+};
+
+// ─── Coaching Theme Heatmap ───────────────────────────────────────────────────
+
+const THEME_CELL_W = 62;
+
+const themeCellStyle = (t: ThemeTally, dealHealthOnly?: boolean): { bg: string; fg: string } => {
+  if (t.applicable === 0) return { bg: '#f8fafc', fg: '#94a3b8' };
+  if (t.gaps === 0) return { bg: '#dcfce7', fg: '#14532d' };
+  if (dealHealthOnly) return { bg: '#fef3c7', fg: '#78350f' };
+  if (t.gaps === t.applicable) return { bg: '#fecaca', fg: '#7f1d1d' };
+  return { bg: '#fef9c3', fg: '#713f12' };
+};
+
+/**
+ * Calls with each coaching-theme gap, by SE. Mirrors the "calls with each gap, by rep"
+ * table from the SE call review, built automatically from coaching_signals.
+ */
+const ThemeHeatmap: React.FC<{ sessions: DemoSession[]; seNames: string[] }> = ({ sessions, seNames }) => {
+  const rows = seNames
+    .map(name => ({ name, ...tallyThemes(sessions.filter(s => s.callDeliveredBy === name)) }))
+    .filter(r => r.calls > 0);
+  if (rows.length === 0) return null;
+  const team = rows.length > 1 ? { name: 'Team', ...tallyThemes(sessions) } : null;
+  const allRows = team ? [...rows, team] : rows;
+  const tableW = HEATMAP_NAME_W + COACHING_THEMES.length * THEME_CELL_W;
+
+  return (
+    <div className="overflow-x-auto">
+      <table style={{ tableLayout: 'fixed', borderCollapse: 'collapse', width: tableW, minWidth: tableW }}>
+        <colgroup>
+          <col style={{ width: HEATMAP_NAME_W }} />
+          {COACHING_THEMES.map(t => <col key={t.key} style={{ width: THEME_CELL_W }} />)}
+        </colgroup>
+        <thead>
+          <tr>
+            <th style={{ width: HEATMAP_NAME_W, height: 130 }} />
+            {COACHING_THEMES.map(t => (
+              <th key={t.key} title={t.good} style={{ width: THEME_CELL_W, height: 130, position: 'relative', overflow: 'visible', padding: 0 }}>
+                <span style={{
+                  position: 'absolute', bottom: 8, left: Math.round(THEME_CELL_W / 2),
+                  transformOrigin: 'left bottom', transform: 'rotate(-45deg)', whiteSpace: 'nowrap',
+                  fontSize: 10, fontWeight: 600, color: t.dealHealthOnly ? '#94a3b8' : '#64748b', lineHeight: 1,
+                }}>
+                  {t.label}{t.dealHealthOnly ? ' *' : ''}
+                </span>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {allRows.map(row => (
+            <tr key={row.name} style={{ borderTop: row.name === 'Team' ? '2px solid #e2e8f0' : '1px solid #f1f5f9' }}>
+              <td style={{ padding: '5px 10px 5px 0', fontSize: 12, fontWeight: row.name === 'Team' ? 800 : 600, color: '#374151', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {row.name} <span style={{ fontWeight: 400, color: '#94a3b8' }}>({row.calls})</span>
+              </td>
+              {COACHING_THEMES.map(t => {
+                const tally = row.byTheme[t.key];
+                const { bg, fg } = themeCellStyle(tally, t.dealHealthOnly);
+                return (
+                  <td key={t.key} style={{ padding: '5px 4px', textAlign: 'center' }}>
+                    <div
+                      title={tally.applicable > 0
+                        ? `${row.name} · ${t.label}: ${t.dealHealthOnly ? 'no next step on' : 'gap on'} ${tally.gaps} of ${tally.applicable} calls where it came up`
+                        : "Didn't come up"}
+                      style={{ backgroundColor: bg, color: fg, borderRadius: 4, padding: '4px 2px', fontSize: 11, fontWeight: 700 }}
+                    >
+                      {tally.applicable > 0 ? `${tally.gaps}/${tally.applicable}` : '—'}
+                    </div>
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div className="flex flex-wrap items-center gap-5 mt-4 text-xs text-slate-400">
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#fecaca', border: '1px solid #fca5a5' }} /> Gap on every call</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#fef9c3', border: '1px solid #fef08a' }} /> Gap on some calls</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#dcfce7', border: '1px solid #bbf7d0' }} /> No gaps</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded inline-block" style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }} /> Didn't come up</span>
+        <span>* Deal health only, not part of the SE score</span>
       </div>
     </div>
   );
@@ -1093,6 +1180,24 @@ export const SeDashboard: React.FC = () => {
           </div>
           <p className="text-xs text-gray-400 mb-5">Avg % of max per category · hover a cell for details</p>
           <CategoryHeatmap sessions={sessions} seNames={seNames} />
+        </div>
+      )}
+
+      {/* Coaching Theme Heatmap — calls with each gap, by SE */}
+      {sorted.some(s => !!s.seScoring?.evaluations?.[0]?.coaching_signals) && (
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center justify-between mb-1">
+            <h2 className="text-base font-bold text-brand-navy">
+              Coaching Themes{selectedSe !== 'all' ? ` — ${selectedSe}` : ''}
+            </h2>
+          </div>
+          <p className="text-xs text-gray-400 mb-5">
+            Calls with a gap out of calls where the theme came up · only calls scored since coaching themes were added · hover a theme for what good looks like
+          </p>
+          <ThemeHeatmap
+            sessions={sorted}
+            seNames={[...new Set(sorted.map(s => s.callDeliveredBy || '').filter(Boolean))].sort()}
+          />
         </div>
       )}
 

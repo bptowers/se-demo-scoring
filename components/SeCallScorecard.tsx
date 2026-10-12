@@ -3,6 +3,7 @@ import { ArrowLeft, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import { DemoSession } from '../types';
 import { Button } from './Button';
 import { SeCategoryRadar } from './SeCategoryRadar';
+import { SeCoachingSignalsPanel } from './SeCoachingSignalsPanel';
 
 const scoreColor = (pct: number) => {
   if (pct >= 80) return 'text-green-700 bg-green-50 border-green-200';
@@ -212,6 +213,8 @@ export const SeCallScorecard: React.FC<SeCallScorecardProps> = ({
           ))}
         </div>
       </div>
+
+      <SeCoachingSignalsPanel evaluation={evaluation} />
 
       {evaluation.deal_risk_observations.length > 0 && (
         <div className="bg-white border border-gray-100 rounded-xl shadow-sm p-5">
